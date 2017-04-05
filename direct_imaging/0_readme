@@ -1,0 +1,33 @@
+[0] Requirements
+
+ - Python
+ - Numpy
+ - netcdf4-python
+
+
+[1] Set up
+
+    Copy 0_setup.py to setup.py and edit. 
+    Type:
+        cp 0_setup.py setup.py 
+
+
+[2] Prepare data files
+
+    Make sure your aij data file exists at DATAFILE_DIR/XXXDATAFILE_TAG, 
+    .R file at RFILE, and the consistent spectral file at SPECTRAL_FILE. 
+
+
+[3] Execute
+
+    Type:
+        python main_directimaging_modelE.py
+
+    The new directory to store the input parameters and the results is
+    created in out/. If the directory already exists, you will be asked if
+    you overwrite. 
+
+
+[4] Done !
+
+    

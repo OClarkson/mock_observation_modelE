@@ -1,0 +1,40 @@
+[0] Requirements
+
+ - Python
+ - Numpy
+ - netcdf4-python
+
+
+[1] Set up
+
+    Copy 0_setup.py to setup.py and edit. 
+    Type:
+        cp 0_setup.py setup.py 
+
+
+[2] Prepare data files
+
+    Make sure your data file exists at DATAFILE. 
+    Make sure your cross-section data files exist at XSFILE_TAG. 
+
+
+[3] Execute
+
+    Type:
+        python main_transmission_modelE.py
+
+    The new directory to store the input parameters and the results is
+    created in out/. If the directory already exists, you will be asked if
+    you overwrite. 
+
+
+[4] Done !
+
+    The results are:
+
+        out/(OUTFILE_TAG)/transit_Heff_depth --- original resolution
+        out/(OUTFILE_TAG)/transit_Heff_depth_R(resolution) --- specified resolution
+
+    1st column: wavelength       [um]
+    2nd column: effective height [km]
+    3rd column: transit depth    [ppm]
