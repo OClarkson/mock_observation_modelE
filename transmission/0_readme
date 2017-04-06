@@ -7,9 +7,11 @@
 
 [1] Set up
 
-    Copy 0_setup.py to setup.py and edit. 
-    Type:
+    Copy 0_setup.py to setup.py and edit:
         cp 0_setup.py setup.py 
+
+    Make output directory, e.g.,
+        mkdir out
 
 
 [2] Prepare data files
@@ -18,7 +20,14 @@
     Make sure your cross-section data files exist at XSFILE_TAG. 
 
 
-[3] Execute
+[3] Prepare cross-section table
+
+    Currently, the default cross section tables are stored at:
+        https://drive.google.com/open?id=0B-UiefXUNMcpU1dQYVN4SjlaVmc
+    Download the files for the molecules you include. 
+
+
+[4] Execute
 
     Type:
         python main_transmission_modelE.py
@@ -28,7 +37,7 @@
     you overwrite. 
 
 
-[4] Done !
+[5] Done !
 
     The results are:
 

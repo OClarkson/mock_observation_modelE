@@ -7,9 +7,11 @@
 
 [1] Set up
 
-    Copy 0_setup.py to setup.py and edit. 
-    Type:
+    Copy 0_setup.py to setup.py and edit:
         cp 0_setup.py setup.py 
+
+    Make output directory, e.g.,
+        mkdir out
 
 
 [2] Prepare data files
