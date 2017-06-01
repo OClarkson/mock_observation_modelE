@@ -4,12 +4,13 @@
 
 DATAFILE_DIR   = "/Users/yuka/Dropbox/GCM_RUNS/RUNS/P1SoM40/"
 DATAFILE_TAG   = "1901.aijP1SoM40.nc"
+
 RFILE          = "/Users/yuka/Dropbox/GCM_RUNS/RUNS/P1SoM40/P1SoM40.R"
-SPECTRAL_FILE  = 'spectral_file/sp_lw_300_jm2'
+SPECTRAL_FILE_SW   = 'spectral_files/sp_sw_ga7_dsa'
+SPECTRAL_FILE_LW   = 'spectral_files/sp_lw_ga7_dsa'
 
 OUTFILE_DIR    = 'out/'
 OUTFILE_TAG    = "1901.aijP1SoM40_lw300_PHASEeq270"
-
 
 #------------------------------------------------
 # 2. geometry of observation
@@ -27,18 +28,18 @@ else :
     DT             =   1. # time interval of observation [hr]
     TIME_END       =  24. # duration of observation [hr]    
 
+
+
 #------------------------------------------------
 # 3. computation mode
 #------------------------------------------------
 
-# Shortwave (sw) or longwave (lw)
-# MODE = "sw"
-MODE = "lw"
+MONTHLY = False
 
-# Plot Spectrum and/or lightcurve
-PLOT_LC = True
-PLOT_SP = True
-
+ShortWave_LightCurve = True # shortwave, lightcurve
+ShortWave_Spectrum   = True # shortwave, spectrum
+LongWave_LightCurve  = True # longwave,  lightcurve
+LongWave_Spectrum    = True # longwave,  spectrum
 
 #------------------------------------------------
 # 4. Advanced
