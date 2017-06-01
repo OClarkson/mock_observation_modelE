@@ -9,7 +9,7 @@ from setup import *
 import io_nc
 import io_txt
 
-from geometry import *
+import geometry
 import plot
 
 sec2hr = 1. / ( 60.*60. )
@@ -27,10 +27,10 @@ if __name__ == "__main__":
     now = datetime.datetime.now()
     print now.strftime("%Y-%m-%d %H:%M:%S")
 
-    if not DEBUG_ON :
+    if not l_Debug :
 
         # Create directory
-        out_dir = OUTFILE_DIR + OUTFILE_TAG + "/"
+        out_dir = s_outFile_Dir + s_outFile_Tag + "/"
         if os.path.exists( out_dir ):
             print out_dir+" already exists. Overwrite? [y/n] ...", 
             answer = raw_input()
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         print "Saved :", thisfile, " &", setupfile
 
         # Save start time
-        filename_log = OUTFILE_DIR + OUTFILE_TAG + "/time.log"
+        filename_log = out_dir + "time.log"
         f_log = open( filename_log, 'w')
         f_log.write( "start time: " + now.strftime("%Y-%m-%d %H:%M:%S") + "\n" )
 
@@ -62,20 +62,20 @@ if __name__ == "__main__":
     # Geometry set-up
     #-----------------------------------------------
 
-    oblqty_deg, p_spin_sec, p_orbit_sec = io_txt.extract_param( RFILE, [ 'obliquity', 'siderealrotationperiod', 'siderealorbitalperiod' ], type='float' )
+    oblqty_deg, p_spin_sec, p_orbit_sec = io_txt.extract_param( s_RFile, [ 'obliquity', 'siderealrotationperiod', 'siderealorbitalperiod' ], type='float' )
 
-    if FULL_PHASE :
-        PHASE0 = -180.
-        TIME_END  = p_orbit_sec * sec2hr
-        DT        = TIME_END / DIV_ORBIT
+    if l_FullOrbit :
+        f_PhaseAngle_Initial_deg = -180. 
+        f_TimeInterval_hr        = TIME_END / DIV_ORBIT
+        f_TimeLimit_hr           = p_orbit_sec * sec2hr
 
-    oblqty, phase_eq, phase0, inc = init_geometry( oblqty_deg, PHASE_EQ, PHASE0, INC )
+    oblqty, phase_eq, phase0, inc = init_geometry( oblqty_deg, f_PhaseAngle_Equinox_deg, f_PhaseAngle_Initial_deg, f_InclinationAngle_deg )
     omega_spin, omega_orbit       = init_omega( p_spin_sec * sec2hr, p_orbit_sec * sec2hr )
 
-    datafile_example = commands.getoutput( "find " + DATAFILE_DIR[:-1] + " -name *"+DATAFILE_TAG ).split("\n")[0]
+    datafile_example = commands.getoutput( "find " + s_aijFile_Dir[:-1] + " -name *" + s_aijFile_Tag ).split("\n")[0]
     nlat, nlon, array_lat, array_lon, array_data_dummy = io_nc.read_nc( datafile_example, mode="sw" )
     array_area  = init_area( nlat, nlon, array_lat, array_lon )
-    lon_offset = get_lon_offset( array_lat, array_lon, SUBSTELLAR_LON_0, oblqty, phase_eq, phase0 )
+    lon_offset = get_lon_offset( array_lat, array_lon, f_SubStellarLongitude_Initial_deg, oblqty, phase_eq, phase0 )
 
     #-----------------------------------------------
     # Computing time variation...
@@ -93,37 +93,44 @@ if __name__ == "__main__":
         month1_old = -1
 
     else :
+        ANNaijfile = s_aijFile_Dir + 'ANN' + s_aijFile_Tag
+        if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
+            nlat, nlon, array_lat, array_lon, array_data_sw = io_nc.read_nc( ANNaijfile, mode='sw' )
 
-        if ShortWave_LightCurve or ShortWave_Spectrum :
-            nlat, nlon, array_lat, array_lon, array_data_sw = io_nc.read_nc( DATAFILE_DIR+'ANN'+DATAFILE_TAG, mode='sw' )
+        if l_LongWave_LightCurve or l_LongWave_Spectrum :
+            nlat, nlon, array_lat, array_lon, array_data_lw = io_nc.read_nc( ANNaijfile, mode='lw' )
 
-        if LongWave_LightCurve or LongWave_Spectrum :
-            nlat, nlon, array_lat, array_lon, array_data_lw = io_nc.read_nc( DATAFILE_DIR+'ANN'+DATAFILE_TAG, mode='lw' )
+    while time <= f_TimeLimit_hr :
 
-    while time <= TIME_END :
-
-        if MONTHLY :
+        if l_Monthly :
             fraction_of_year = ( phase0 + omega_orbit*time - phase_eq ) / ( 2. * np.pi ) + ( ( 31+28+21 ) / 365.25 ) # Vernal equnox ~ March 21th
             month1 = int( np.floor( 12 * fraction_of_year - 0.5 ) )
             month2 = month1 + 1
             weight = 12 * fraction_of_year - 0.5 - month1
             month1 = month1 % 12
             month2 = month2 % 12
+            print 'month1, month2: ', label_month[month1], label_month[month2]
 
             if month1_old != month1 :
-                print 'reading ' + label_month[month1]
+                aijfile_month1 = s_aijFile_Dir + label_month[month1] + s_aijFile_Tag
+                aijfile_month2 = s_aijFile_Dir + label_month[month2] + s_aijFile_Tag
+                month1_old = month1
 
-                if ShortWave_LightCurve or ShortWave_Spectrum :
+                if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
                     nlat, nlon, array_lat, array_lon, array_data_sw_1 = io_nc.read_nc( DATAFILE_DIR+label_month[month1]+DATAFILE_TAG, mode='sw' )
                     nlat, nlon, array_lat, array_lon, array_data_sw_2 = io_nc.read_nc( DATAFILE_DIR+label_month[month2]+DATAFILE_TAG, mode='sw' )
-                    array_data_sw = array_data_sw_1 * ( 1. - weight ) + array_data_sw_2 * weight
 
-                if LongWave_LightCurve or LongWave_Spectrum :
+                if l_LongWave_LightCurve or l_LongWave_Spectrum :
                     nlat, nlon, array_lat, array_lon, array_data_lw_1 = io_nc.read_nc( DATAFILE_DIR+label_month[month1]+DATAFILE_TAG, mode='lw' )
                     nlat, nlon, array_lat, array_lon, array_data_lw_2 = io_nc.read_nc( DATAFILE_DIR+label_month[month2]+DATAFILE_TAG, mode='lw' )
                     array_data_lw = array_data_lw_1 * ( 1. - weight ) + array_data_lw_2 * weight
 
-                month1_old = month1
+
+            if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
+                array_data_sw = array_data_sw_1 * ( 1. - weight ) + array_data_sw_2 * weight
+
+            if l_LongWave_LightCurve or l_LongWave_Spectrum :
+                array_data_lw = array_data_lw_1 * ( 1. - weight ) + array_data_lw_2 * weight
 
         #-----------------------------------------------
         # compute weight function
@@ -134,20 +141,20 @@ if __name__ == "__main__":
         array_cosTH0[ np.where( array_cosTH0 < 0. )[0] ] = 0.
         array_cosTH1[ np.where( array_cosTH1 < 0. )[0] ] = 0.
 
-        if ShortWave_LightCurve or ShortWave_Spectrum :
+        if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
             array_weight = ( 1./np.pi ) * array_cosTH0 * array_cosTH1 * array_area
             data_integrated_sw.append( np.dot( array_weight, array_data_sw ) / np.sum( array_weight ) )
 
-        if LongWave_LightCurve or LongWave_Spectrum :
+        if l_LongWave_LightCurve or l_LongWave_Spectrum :
             array_weight = ( 1./np.pi ) * array_cosTH1 * array_area
             data_integrated_lw.append( np.dot( array_weight, array_data_lw ) / np.pi )  # per area
 
-        if FULL_PHASE :
+        if l_FullOrbit :
             list_time.append( phase0 + omega_orbit*time )
         else :
             list_time.append( time )
 
-        time = time + DT
+        time = time + f_TimeInterval_hr
 
     data_integrated_sw = np.array( data_integrated_sw )
     data_integrated_lw = np.array( data_integrated_lw )
@@ -156,21 +163,19 @@ if __name__ == "__main__":
     # plot
     #-----------------------------------------------
 
-    if not DEBUG_ON :
+    if not l_Debug :
 
-        outfile_head = OUTFILE_DIR + OUTFILE_TAG
+        if l_ShortWave_LightCurve :
+            plot.plot_lc( list_time, data_integrated_sw, out_dir, s_RFile, s_SpectralFile_SW, mode='sw', full_phase=l_FullOrbit )
 
-        if ShortWave_LightCurve :
-            plot.plot_lc( list_time, data_integrated_sw, outfile_head, RFILE, SPECTRAL_FILE_SW, mode='sw', full_phase=FULL_PHASE )
+        if l_ShortWave_Spectrum :
+            plot.plot_sp( list_time, data_integrated_sw, out_dir, s_RFile, s_SpectralFile_SW, mode='sw' )
 
-        if ShortWave_Spectrum :
-            plot.plot_sp( list_time, data_integrated_sw, outfile_head, RFILE, SPECTRAL_FILE_SW, mode='sw' )
+        if l_LongWave_LightCurve :
+            plot.plot_lc( list_time, data_integrated_lw, out_dir, s_RFile, s_SpectralFile_LW, mode='lw', full_phase=l_FullOrbit )
 
-        if LongWave_LightCurve :
-            plot.plot_lc( list_time, data_integrated_lw, outfile_head, RFILE, SPECTRAL_FILE_LW, mode='lw', full_phase=FULL_PHASE )
-
-        if LongWave_Spectrum :
-            plot.plot_sp( list_time, data_integrated_lw, outfile_head, RFILE, SPECTRAL_FILE_LW, mode='lw' )
+        if l_LongWave_Spectrum :
+            plot.plot_sp( list_time, data_integrated_lw, out_dir, s_RFile, s_SpectralFile_LW, mode='lw' )
 
 
     #------------------------------------------------
@@ -181,7 +186,7 @@ if __name__ == "__main__":
     print now.strftime("%Y-%m-%d %H:%M:%S")
     print ''
 
-    if not DEBUG_ON :
+    if not l_Debug :
 
         f_log.write( "end time: " + now.strftime("%Y-%m-%d %H:%M:%S") + "\n" )
         f_log.close()
