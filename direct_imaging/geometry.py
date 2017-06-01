@@ -38,12 +38,44 @@ def init_area( nlat, nlon, lat_deg, lon_deg ):
     return area
 
 
+
+#=======================================================================
+def get_lon_offset( array_lat, array_lon, substellar_lon_0, oblqty, phase_eq, phase0 ):
+
+    rot_x_oblqty   = np.array([[                     1.,                     0.,                 0. ],
+                               [                     0.,       np.cos( oblqty ),   np.sin( oblqty ) ],
+                               [                     0.,   -1.*np.sin( oblqty ),   np.cos( oblqty ) ]])
+
+    rot_z_phase_eq = np.array([[     np.cos( phase_eq ),   -1.*np.sin( phase_eq ),                 0. ],
+                               [     np.sin( phase_eq ),       np.cos( phase_eq ),                 0. ],
+                               [                     0.,                       0.,                 1. ]])
+
+
+    array_lat    = deg2rad * array_lat
+    array_lon    = deg2rad * array_lon
+
+    vecERR = np.array([ np.cos( array_lat ) * np.cos( array_lon ),
+                        np.cos( array_lat ) * np.sin( array_lon ),
+                        np.sin( array_lat ) ])
+
+    vecER  = np.dot( rot_z_phase_eq, np.dot( rot_x_oblqty, vecERR ) )
+
+    vecES  = np.array([ np.cos( phase0 ), np.sin( phase0 ), 0. ])
+    
+    lon_substellar = array_lon[ np.argmax( np.dot( vecES, vecER ) ) ]
+
+    lon_substellar = lon_substellar / deg2rad
+    print 'lon_substellar', lon_substellar
+    lon_offset =  lon_substellar - substellar_lon_0
+
+    print 'lon_offset', lon_offset
+    return lon_offset
+
+
+
 #=======================================================================
 def get_weight( omega_spin, omega_orbit, oblqty, phase_eq, phase0, inc, 
                 lat, lon, time ):
-    """
-    Calculate weight function
-    """
 
     rot_x_oblqty   = np.array([[                     1.,                     0.,                 0. ],
                                [                     0.,       np.cos( oblqty ),   np.sin( oblqty ) ],

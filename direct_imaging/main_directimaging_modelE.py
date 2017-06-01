@@ -94,6 +94,9 @@ if __name__ == "__main__":
         nlat, nlon, array_lat, array_lon, array_data = io_nc.read_nc( DATAFILE_DIR+'ANN'+DATAFILE_TAG, mode=MODE )
         print array_data
 
+    lon_offset = get_lon_offset( array_lat, array_lon, SUBSTELLAR_LON_0, oblqty, phase_eq, phase0 )
+    array_lon  = array_lon + lon_offset
+
     while time <= TIME_END :
 
         if MONTHLY :
