@@ -49,9 +49,9 @@ def get_weight( omega_spin, omega_orbit, oblqty, phase_eq, phase0, inc,
                                [                     0.,       np.cos( oblqty ),   np.sin( oblqty ) ],
                                [                     0.,   -1.*np.sin( oblqty ),   np.cos( oblqty ) ]])
 
-    rot_z_phase_eq = np.array([[     np.cos( phase_eq ),     np.sin( phase_eq ),                 0. ],
-                               [ -1.*np.sin( phase_eq ),     np.cos( phase_eq ),                 0. ],
-                               [                     0.,                     0.,                 1. ]])
+    rot_z_phase_eq = np.array([[     np.cos( phase_eq ),   -1.*np.sin( phase_eq ),                 0. ],
+                               [     np.sin( phase_eq ),       np.cos( phase_eq ),                 0. ],
+                               [                     0.,                       0.,                 1. ]])
 
     vecEO = np.array( [ np.sin( inc ), 0., np.cos( inc ) ] )
     lat    = deg2rad * lat
