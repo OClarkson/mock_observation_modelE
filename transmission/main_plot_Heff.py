@@ -10,8 +10,6 @@ params = {'mathtext.default': 'regular',
           'font.size': 14 }
 plt.rcParams.update(params)
 
-
-
 R_PLANET = 6371. # km
 R_STAR   = 0.3761 * 695700. # km
 # R_STAR   = 0.2 * 695700. # km

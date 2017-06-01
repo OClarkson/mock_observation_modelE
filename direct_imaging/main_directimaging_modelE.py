@@ -1,11 +1,15 @@
 import numpy as np
 import datetime
 import os
+import sys
+import commands
+
+from setup import *
+
 import io_nc
 import io_txt
+
 from geometry import *
-from setup import *
-import sys 
 import plot
 
 sec2hr = 1. / ( 60.*60. )
@@ -56,10 +60,21 @@ if __name__ == "__main__":
     # Geometry set-up
     #-----------------------------------------------
 
-    nlat, nlon, array_lat, array_lon, array_data = io_nc.read_nc( DATAFILE_DIR+'JAN'+DATAFILE_TAG, mode=MODE )
-    oblqty_deg, p_spin_sec, p_orbit_sec          = io_txt.extract_param( RFILE, [ 'OBLIQUITY', 'siderealRotationPeriod', 'siderealOrbitalPeriod' ], type='float' )
+    oblqty_deg, p_spin_sec, p_orbit_sec          = io_txt.extract_param( RFILE, [ 'obliquity', 'siderealrotationperiod', 'siderealorbitalperiod' ], type='float' )
+
+    print 'obliquity', oblqty_deg
+
+    if FULL_PHASE :
+        PHASE0 = -180.
+        TIME_END  =  p_orbit_sec * sec2hr
+        DT        = TIME_END / DIV_ORBIT
+
     oblqty, phase_eq, phase0, inc                = init_geometry( oblqty_deg, PHASE_EQ, PHASE0, INC )
     omega_spin, omega_orbit                      = init_omega( p_spin_sec * sec2hr, p_orbit_sec * sec2hr )
+
+    datafile_example = commands.getoutput( "find " + DATAFILE_DIR[:-1] + " -name *"+DATAFILE_TAG ).split("\n")[0]
+    nlat, nlon, array_lat, array_lon, array_data = io_nc.read_nc( datafile_example, mode=MODE )
+#    nlat, nlon, array_lat, array_lon, array_data = io_nc.read_nc( DATAFILE_DIR+'JAN'+DATAFILE_TAG, mode=MODE )
     array_area                                   = init_area( nlat, nlon, array_lat, array_lon )
 
     #-----------------------------------------------
@@ -71,23 +86,30 @@ if __name__ == "__main__":
     data_integrated = []
     list_time       = []
     time = 0.
-    
-    month1_old = -1
+
+    if MONTHLY :    
+        month1_old = -1
+
+    else :
+        nlat, nlon, array_lat, array_lon, array_data = io_nc.read_nc( DATAFILE_DIR+'ANN'+DATAFILE_TAG, mode=MODE )
+        print array_data
+
     while time <= TIME_END :
 
-        fraction_of_year = ( phase0 + omega_orbit*time - phase_eq ) / ( 2. * np.pi ) + ( ( 31+28+21 ) / 365.25 ) # Vernal equnox ~ March 21th
-        month1 = int( np.floor( 12 * fraction_of_year - 0.5 ) )
-        month2 = month1 + 1
-        weight = 12 * fraction_of_year - 0.5 - month1
-        month1 = month1 % 12
-        month2 = month2 % 12
-        if month1_old != month1 :
-            print 'reading ' + label_month[month1]
-            nlat, nlon, array_lat, array_lon, array_data1 = io_nc.read_nc( DATAFILE_DIR+label_month[month1]+DATAFILE_TAG, mode=MODE )
-            nlat, nlon, array_lat, array_lon, array_data2 = io_nc.read_nc( DATAFILE_DIR+label_month[month2]+DATAFILE_TAG, mode=MODE )
-            month1_old = month1
+        if MONTHLY :
+            fraction_of_year = ( phase0 + omega_orbit*time - phase_eq ) / ( 2. * np.pi ) + ( ( 31+28+21 ) / 365.25 ) # Vernal equnox ~ March 21th
+            month1 = int( np.floor( 12 * fraction_of_year - 0.5 ) )
+            month2 = month1 + 1
+            weight = 12 * fraction_of_year - 0.5 - month1
+            month1 = month1 % 12
+            month2 = month2 % 12
 
-        array_data = array_data1 * ( 1. - weight ) + array_data2 * weight
+            if month1_old != month1 :
+                print 'reading ' + label_month[month1]
+                nlat, nlon, array_lat, array_lon, array_data1 = io_nc.read_nc( DATAFILE_DIR+label_month[month1]+DATAFILE_TAG, mode=MODE )
+                nlat, nlon, array_lat, array_lon, array_data2 = io_nc.read_nc( DATAFILE_DIR+label_month[month2]+DATAFILE_TAG, mode=MODE )
+                array_data = array_data1 * ( 1. - weight ) + array_data2 * weight
+                month1_old = month1
 
         #-----------------------------------------------
         # compute weight function
@@ -106,9 +128,15 @@ if __name__ == "__main__":
             array_weight = ( 1./np.pi ) * array_cosTH1 * array_area
             data_integrated.append( np.dot( array_weight, array_data ) / np.pi )  # per area
 
-        list_time.append( time )
+        if FULL_PHASE :
+            list_time.append( phase0 + omega_orbit*time )
+        else :
+            list_time.append( time )
+
         time = time + DT
 
+    for ii in xrange( len( list_time ) ):
+        print 'data', list_time[ii], data_integrated[ii][3]
     data_integrated = np.array( data_integrated )
 
     #-----------------------------------------------
@@ -118,7 +146,7 @@ if __name__ == "__main__":
     if not DEBUG_ON :
         outfile_head = OUTFILE_DIR + OUTFILE_TAG
         if PLOT_LC :
-            plot.plot_lc( list_time, data_integrated, outfile_head, RFILE, SPECTRAL_FILE, MODE )
+            plot.plot_lc( list_time, data_integrated, outfile_head, RFILE, SPECTRAL_FILE, MODE, full_phase=FULL_PHASE )
         if PLOT_SP :
             plot.plot_sp( list_time, data_integrated, outfile_head, RFILE, SPECTRAL_FILE, MODE )
 

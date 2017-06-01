@@ -3,9 +3,9 @@ import numpy as np
 #------------------------------------
 # dynamical parameters
 #------------------------------------
-param_default = { 'OBLIQUITY': 23.44,                      # planetary obliquity [deg]
-                  'siderealRotationPeriod': 86636.7123288, # spin period [sec] 
-                  'siderealOrbitalPeriod' : 31536000. }    # orbital period [sec]
+param_default = { 'obliquity': 23.44,                      # planetary obliquity [deg]
+                  'siderealrotationperiod': 86636.7123288, # spin period [sec] 
+                  'siderealorbitalperiod' : 31536000. }    # orbital period [sec]
 
 
 #=======================================================================
@@ -26,13 +26,16 @@ def extract_param( file, list_param, type='txt' ):
             value = 0.
 
         # search in R
-        for line in lines:
-            if line.find( param ) >= 0 :
+        for line0 in lines :
+            line = line0.lower()
+            if line.find( param.lower() ) >= 0 :
                 if line[0] !='!' :
-                    start = line.find( param ) + len( param ) + 1
-                    end   = line.find(' ')
+                    start = line.find( param.lower() ) + len( param ) + 1
+                    end   = min( line.find(' '), line.find('\n'), line.find('!'))
                     if type=='float' :
-                        value = float( line[start:end] )
+                        print 'line[start:end]', line[start:end]
+                        str = line[start:end].replace( 'd', 'e' )
+                        value = float( str )
                     else :
                         value = line[start:end]
 
