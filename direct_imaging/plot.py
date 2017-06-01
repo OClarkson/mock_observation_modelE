@@ -35,11 +35,11 @@ def plot_sp( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
     fig, ax = plt.subplots(1,1,figsize=(5,3))
     ax.set_xlabel( 'wavelength [ $\mu $m ]' )
 
-    if mode=='SW' or mode=='sw' :
+    if mode.lower()=='sw' :
         ax.set_xlim( [ 0.2, 2.0 ] )
         ax.set_ylabel( r'apparent albedo' )
 
-    elif mode=='LW' or mode=='lw' :
+    elif mode.lower()=='lw' :
         data_sp     = data_sp / band_width # per micron
         ax.set_xlim( [ 3., 20.0 ] )
 #        ax.set_xscale( 'log' )
@@ -54,7 +54,7 @@ def plot_sp( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
 
 
 #=======================================================================
-def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mode ):
+def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mode, full_phase=True ):
 
     #-----------------------------------------------
     print 'Plotting light curves'
@@ -68,7 +68,6 @@ def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
     band_width  = ( band[:,1] - band[:,0] )
 
     fig, ax = plt.subplots(1,1,figsize=(5,3))
-    ax.set_xlabel( 'time [hr]' )
     if mode=='SW' or mode=='sw' :
         ax.set_ylabel( r'apparent albedo' )
         ax.set_ylim( [ 0., 1.0 ] )
@@ -76,6 +75,12 @@ def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
         data_integrated = data_integrated / band_width # per micron
         ax.set_ylabel( r'radiation [W/m$^2$/$\mu$m/sr]' )
 #        ax.set_ylabel( r'radiation' )
+
+    if full_phase :
+        ax.set_xlabel( 'orbital phase [rad]' )
+        ax.set_xlim([-np.pi, np.pi])
+    else :
+        ax.set_xlabel( 'time [hr]' )
 
     for jj in xrange( len( data_integrated.T ) ):
         ax.plot( data_time, data_integrated.T[jj], label=str(band_center[jj])+r'$\mu $m' )
