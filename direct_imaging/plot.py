@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from cycler import cycler
 import errors
 import sys
 import io_txt
+import setup_plot
 
 params = {'mathtext.default': 'regular' }
 plt.rcParams.update(params)
@@ -18,35 +18,52 @@ def get_band( spectral_file, mode, band_num ):
     return band[:,1:] * 1e6 # m => um
 
 
+
 #=======================================================================
-def plot_sp( data_time, data_integrated, outfile_head, rfile, spectral_file, mode ):
+def get_labels( band, digit=0 ) :
+
+    band       = np.array( band )
+    band_shape = band.shape
+    band_flat  = band.flatten()
+
+    if digit == 0 :
+        band_str_flat = map( str, map( int, map( round, band_flat ) ) )
+    else :
+        band_str_flat = map( str, map( lambda x: round(x, digit), band_flat ) )
+
+    band_str_flat = np.array( band_str_flat )
+    band_str      = band_str_flat.reshape( band_shape )
+
+    labels = []
+    for jj in xrange( len( band ) ):
+        labels.append( band_str[jj][0] + '-' + band_str[jj][1] + r' $\mu $m' )
+
+    return labels
+
+
+
+#=======================================================================
+def plot_sp( data_time, data_integrated, outfile_head, rfile, spectral_file, mode=False ):
 
     #-----------------------------------------------
-    print 'Plotting average spectra'
+    print 'Plotting ' + str(mode.upper()) +' average spectra' 
     #-----------------------------------------------
 
-    data_sp     = np.average( data_integrated, axis=0 )
+    data_sp     = np.nanmean( data_integrated, axis=0 )
     band_num    = len( data_sp )
 
     band        = get_band( spectral_file, mode, band_num ) 
     band_center = ( band[:,0] + band[:,1] ) * 0.5
     band_width  = ( band[:,1] - band[:,0] )
 
-    fig, ax = plt.subplots(1,1,figsize=(5,3))
-    ax.set_xlabel( 'wavelength [ $\mu $m ]' )
-
     if mode.lower()=='sw' :
-        ax.set_xlim( [ 0.2, 2.0 ] )
-        ax.set_ylabel( r'apparent albedo' )
+        fig, ax = setup_plot.sp_sw( )
 
     elif mode.lower()=='lw' :
+        fig, ax = setup_plot.sp_lw( )
         data_sp     = data_sp / band_width # per micron
-        ax.set_xlim( [ 3., 20.0 ] )
-#        ax.set_xscale( 'log' )
-        ax.set_ylabel( r'radiation [W/m$^2$/$\mu$m/sr]' )
 
     ax.plot( band_center, data_sp, color='k' )
-
     plt.savefig( outfile_head+'/sp_'+mode+'.pdf', bbox_inches='tight' ) 
 
     data = np.c_[ band_center, data_sp ]
@@ -54,10 +71,10 @@ def plot_sp( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
 
 
 #=======================================================================
-def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mode, full_phase=True ):
+def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mode=False, full_phase=True ):
 
     #-----------------------------------------------
-    print 'Plotting light curves'
+    print 'Plotting ' + str(mode.upper()) +' lightcurves' 
     #-----------------------------------------------
 
     band_num    = len( data_integrated.T )
@@ -67,26 +84,27 @@ def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
     band_center = ( band[:,0] + band[:,1] ) * 0.5
     band_width  = ( band[:,1] - band[:,0] )
 
-    fig, ax = plt.subplots(1,1,figsize=(5,3))
     if mode=='SW' or mode=='sw' :
-        ax.set_ylabel( r'apparent albedo' )
-        ax.set_ylim( [ 0., 1.0 ] )
+        fig, ax, colors = setup_plot.lc_sw( len( data_integrated.T ) )
+        labels  = get_labels( band, digit=2 )
     elif mode=='LW' or mode=='lw' :
+        fig, ax, colors = setup_plot.lc_lw( len( data_integrated.T ) )
+        labels  = get_labels( band, digit=1 )
         data_integrated = data_integrated / band_width # per micron
-        ax.set_ylabel( r'radiation [W/m$^2$/$\mu$m/sr]' )
-#        ax.set_ylabel( r'radiation' )
 
     if full_phase :
         ax.set_xlabel( 'orbital phase [rad]' )
         ax.set_xlim([-np.pi, np.pi])
-    else :
-        ax.set_xlabel( 'time [hr]' )
 
     for jj in xrange( len( data_integrated.T ) ):
-        ax.plot( data_time, data_integrated.T[jj], label=str(band_center[jj])+r'$\mu $m' )
+        ax.plot( data_time, data_integrated.T[jj], label=labels[jj], c=colors[jj] )
 
-#    handles, labels = ax.get_legend_handles_labels()
-#    ax.legend(handles, labels)
+    # legend
+    if mode=='SW' or mode=='sw' :
+        ax = setup_plot.lc_sw_legend( ax )
+
+    elif mode=='LW' or mode=='lw' :
+        ax = setup_plot.lc_lw_legend( ax )
 
     plt.savefig( outfile_head+'/lc_'+mode+'.pdf', bbox_inches='tight' ) 
 
