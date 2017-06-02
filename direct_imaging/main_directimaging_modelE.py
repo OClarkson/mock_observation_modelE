@@ -66,8 +66,9 @@ if __name__ == "__main__":
 
     if l_FullOrbit :
         f_PhaseAngle_Initial_deg = -180. 
-        f_TimeInterval_hr        = TIME_END / DIV_ORBIT
         f_TimeLimit_hr           = p_orbit_sec * sec2hr
+        f_TimeInterval_hr        = f_TimeLimit_hr / i_DivideOrbit
+
 
     oblqty, phase_eq, phase0, inc = init_geometry( oblqty_deg, f_PhaseAngle_Equinox_deg, f_PhaseAngle_Initial_deg, f_InclinationAngle_deg )
     omega_spin, omega_orbit       = init_omega( p_spin_sec * sec2hr, p_orbit_sec * sec2hr )
