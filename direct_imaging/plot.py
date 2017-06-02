@@ -12,7 +12,7 @@ plt.rcParams.update(params)
 #=======================================================================
 def get_band( spectral_file, mode, band_num ):
 
-    band = io_txt.extract_block( spectral_file, 'Band        Lower limit         Upper limit', '*END' )
+    band = io_txt.extract_block( spectral_file, "*BLOCK: TYPE =    1", '*END' )
     if ( len( band ) != band_num ) :
         errors.exit_msg( 'Band number in spectral file does not match. ' )
     return band[:,1:] * 1e6 # m => um

@@ -60,7 +60,7 @@ def extract_block( file, start, end ):
                 ll = ll + 1
             l_end = ll
 
-    data = np.genfromtxt( file, skip_header=l_start+1, skip_footer=len(lines)-l_end )
+    data = np.genfromtxt( file, skip_header=l_start+4, skip_footer=len(lines)-l_end )
 
     return data
 
