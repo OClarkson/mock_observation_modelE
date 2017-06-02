@@ -70,13 +70,13 @@ if __name__ == "__main__":
         f_TimeInterval_hr        = f_TimeLimit_hr / i_DivideOrbit
 
 
-    oblqty, phase_eq, phase0, inc = init_geometry( oblqty_deg, f_PhaseAngle_Equinox_deg, f_PhaseAngle_Initial_deg, f_InclinationAngle_deg )
-    omega_spin, omega_orbit       = init_omega( p_spin_sec * sec2hr, p_orbit_sec * sec2hr )
+    oblqty, phase_eq, phase0, inc = geometry.init_geometry( oblqty_deg, f_PhaseAngle_Equinox_deg, f_PhaseAngle_Initial_deg, f_InclinationAngle_deg )
+    omega_spin, omega_orbit       = geometry.init_omega( p_spin_sec * sec2hr, p_orbit_sec * sec2hr )
 
     datafile_example = commands.getoutput( "find " + s_aijFile_Dir[:-1] + " -name *" + s_aijFile_Tag ).split("\n")[0]
     nlat, nlon, array_lat, array_lon, array_data_dummy = io_nc.read_nc( datafile_example, mode="sw" )
-    array_area  = init_area( nlat, nlon, array_lat, array_lon )
-    lon_offset = get_lon_offset( array_lat, array_lon, f_SubStellarLongitude_Initial_deg, oblqty, phase_eq, phase0 )
+    array_area = geometry.init_area( nlat, nlon, array_lat, array_lon )
+    lon_offset = geometry.get_lon_offset( array_lat, array_lon, f_SubStellarLongitude_Initial_deg, oblqty, phase_eq, phase0 )
 
     #-----------------------------------------------
     # Computing time variation...
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     list_time = []
     time      = 0.
 
-    if MONTHLY :    
+    if l_Monthly :    
         month1_old = -1
 
     else :
@@ -136,8 +136,8 @@ if __name__ == "__main__":
         #-----------------------------------------------
         # compute weight function
         #-----------------------------------------------
-        array_cosTH0, array_cosTH1 = get_weight( omega_spin, omega_orbit, oblqty, phase_eq, phase0, inc, 
-                                                 array_lat, array_lon + lon_offset, time )
+        array_cosTH0, array_cosTH1 = geometry.get_weight( omega_spin, omega_orbit, oblqty, phase_eq, phase0, inc, 
+                                                          array_lat, array_lon + lon_offset, time )
         
         array_cosTH0[ np.where( array_cosTH0 < 0. )[0] ] = 0.
         array_cosTH1[ np.where( array_cosTH1 < 0. )[0] ] = 0.
