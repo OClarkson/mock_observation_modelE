@@ -143,8 +143,13 @@ if __name__ == "__main__":
         array_cosTH1[ np.where( array_cosTH1 < 0. )[0] ] = 0.
 
         if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
+
             array_weight = ( 1./np.pi ) * array_cosTH0 * array_cosTH1 * array_area
-            data_integrated_sw.append( np.dot( array_weight, array_data_sw ) / np.sum( array_weight ) )
+
+            if np.sum( array_weight ) == 0. :
+                data_integrated_sw.append( np.zeros( len( array_data_sw[0] ) ) )
+            else :
+                data_integrated_sw.append( np.dot( array_weight, array_data_sw ) / np.sum( array_weight ) )
 
         if l_LongWave_LightCurve or l_LongWave_Spectrum :
             array_weight = ( 1./np.pi ) * array_cosTH1 * array_area
