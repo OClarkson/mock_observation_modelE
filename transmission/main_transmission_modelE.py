@@ -22,10 +22,10 @@ import read_aijl
 import read_ascii
 import cgs
 import resolution
+import plot
 
 import util_errors
 import util_interp
-import util_plot
 
 #=============================================================================
 # functions
@@ -225,22 +225,32 @@ if __name__ == "__main__":
     matrixW_dFppm = (matrixW_dF/Fstar)*1e6 # ppm
 
 
+    #------------------------------------------------
+    # Output
+    #------------------------------------------------
+
     if ( not l_Debug ):
+
         data     = np.c_[ 1e4/grid_wn, matrixW_Heff, matrixW_dFppm  ]
         myheader = '# wavelength [um]\teffective altitude [km]\ttransit depth [ppm]'
         np.savetxt( s_outFile_Dir + s_outFile_Tag + '/transit_Heff_depth', data, header=myheader )
 
-    #------------------------------------------------
-    # Post-processing
-    #------------------------------------------------
+        #------------------------------------------------
+        # Post-processing
+        #------------------------------------------------
 
-    # Lower resolution.
-    if l_lower_resolution :
-        grid2_wn, matrixW2_Heff  = resolution.lower_resolution( grid_wn, matrixW_Heff, f_resolution )
-        grid2_wn, matrixW2_dFppm = resolution.lower_resolution( grid_wn, matrixW_dFppm, f_resolution )
-        data2                    = np.c_[ 1e4/grid2_wn, matrixW2_Heff, matrixW2_dFppm ]
-        if ( not l_Debug ):
-            np.savetxt( s_outFile_Dir + s_outFile_Tag + "/transit_Heff_depth_R"+str( int( f_resolution ) ), data2, header=myheader )
+        # Lower resolution.
+        if l_lower_resolution :
+            grid_wn0 = deepcopy( grid_wn )
+            grid_wn, matrixW_Heff  = resolution.lower_resolution( grid_wn0, matrixW_Heff, f_resolution )
+            grid_wn, matrixW_dFppm = resolution.lower_resolution( grid_wn0, matrixW_dFppm, f_resolution )
+
+            data  = np.c_[ 1e4/grid_wn, matrixW_Heff, matrixW_dFppm ]
+            np.savetxt( s_outFile_Dir + s_outFile_Tag + "/transit_Heff_depth_R"+str( int( f_resolution ) ), data, header=myheader )
+
+        # Make a plot
+        if l_Plot :
+            plot.plot_sp( out_dir, dict_geom, grid_wn, matrixW_Heff, matrixW_dFppm )
 
     #------------------------------------------------
     # End.

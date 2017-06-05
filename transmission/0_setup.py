@@ -81,6 +81,9 @@ l_lower_resolution  = True
 if l_lower_resolution :
     f_resolution = 100
 
+# Plot ?
+l_Plot = True
+
 #------------------------------------------------
 # 5. computational parameters
 # CHECK CONVERGENCE BY CHANGING THEM !!
@@ -96,7 +99,6 @@ i_B_num = 100
 
 # increment for ray tracing
 f_dL    = 1.e5 # cm => 0.1 km
-
 
 #------------------------------------------------
 # 6. Advanced
