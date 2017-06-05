@@ -110,22 +110,31 @@ if __name__ == "__main__":
             weight = 12 * fraction_of_year - 0.5 - month1
             month1 = month1 % 12
             month2 = month2 % 12
-            print 'month1, month2: ', label_month[month1], label_month[month2]
 
             if month1_old != month1 :
                 aijfile_month1 = s_aijFile_Dir + label_month[month1] + s_aijFile_Tag
                 aijfile_month2 = s_aijFile_Dir + label_month[month2] + s_aijFile_Tag
-                month1_old = month1
 
                 if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
-                    nlat, nlon, array_lat, array_lon, array_data_sw_1 = io_nc.read_nc( DATAFILE_DIR+label_month[month1]+DATAFILE_TAG, mode='sw' )
-                    nlat, nlon, array_lat, array_lon, array_data_sw_2 = io_nc.read_nc( DATAFILE_DIR+label_month[month2]+DATAFILE_TAG, mode='sw' )
+                    if month1_old == -1 :
+                        nlat, nlon, array_lat, array_lon, array_data_sw_1 = io_nc.read_nc( s_aijFile_Dir+label_month[month1]+s_aijFile_Tag, mode='sw' )
+                        print 'Reading ', label_month[month1], 'data for SW'
+                    else :
+                        array_data_sw_1 = array_data_sw_2
+                    print 'Reading ', label_month[month2], 'data for SW'
+                    nlat, nlon, array_lat, array_lon, array_data_sw_2 = io_nc.read_nc( s_aijFile_Dir+label_month[month2]+s_aijFile_Tag, mode='sw' )
 
                 if l_LongWave_LightCurve or l_LongWave_Spectrum :
-                    nlat, nlon, array_lat, array_lon, array_data_lw_1 = io_nc.read_nc( DATAFILE_DIR+label_month[month1]+DATAFILE_TAG, mode='lw' )
-                    nlat, nlon, array_lat, array_lon, array_data_lw_2 = io_nc.read_nc( DATAFILE_DIR+label_month[month2]+DATAFILE_TAG, mode='lw' )
+                    if month1_old == -1 :
+                        nlat, nlon, array_lat, array_lon, array_data_lw_1 = io_nc.read_nc( s_aijFile_Dir+label_month[month1]+s_aijFile_Tag, mode='lw' )
+                        print 'Reading ', label_month[month1], 'data for LW'
+                    else :
+                        array_data_lw_1 = array_data_lw_2
+                    print 'Reading ', label_month[month1], 'data for LW'
+                    nlat, nlon, array_lat, array_lon, array_data_lw_2 = io_nc.read_nc( s_aijFile_Dir+label_month[month2]+s_aijFile_Tag, mode='lw' )
                     array_data_lw = array_data_lw_1 * ( 1. - weight ) + array_data_lw_2 * weight
 
+                month1_old = month1
 
             if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
                 array_data_sw = array_data_sw_1 * ( 1. - weight ) + array_data_sw_2 * weight
