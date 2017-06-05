@@ -85,7 +85,7 @@ def lc_lw( data_num ):
 
     # range
     ax.set_xlim( [ 3., 20. ] )
-    ax.set_ylim( [ 0., 10. ] )
+    ax.set_ylim( [ 0., 6. ] )
 
     # label
     ax.set_xlabel( r'time [hour]' )

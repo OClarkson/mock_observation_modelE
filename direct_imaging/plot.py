@@ -97,7 +97,12 @@ def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
         ax.set_xlim([-np.pi, np.pi])
 
     for jj in xrange( len( data_integrated.T ) ):
-        ax.plot( data_time, data_integrated.T[jj], label=labels[jj], c=colors[jj] )
+        if mode=='SW' or mode=='sw' :
+            ax.plot( data_time, data_integrated.T[jj], label=labels[jj], c=colors[jj] )
+        elif mode=='LW' or mode=='lw' :
+            jj2 = len(data_integrated.T) - jj - 1
+            ax.plot( data_time, data_integrated.T[jj2], label=labels[jj2], c=colors[jj] )
+
 
     # legend
     if mode=='SW' or mode=='sw' :
