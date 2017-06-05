@@ -65,11 +65,15 @@ def get_lon_offset( array_lat, array_lon, substellar_lon_0, oblqty, phase_eq, ph
     # adjust substellar points
     array_cosTH0 = np.dot( vecES, vecER )
 
-    lon_substellar = np.mean( array_lon[ np.where( array_cosTH0 == np.amax( array_cosTH0 ) ) ] )
+    substellar_lon_candidate = array_lon[ np.where( array_cosTH0 == np.amax( array_cosTH0 ) ) ]
+    if np.amax( substellar_lon_candidate ) - np.amin( substellar_lon_candidate ) > np.pi :
+        substellar_lon_candidate[ np.where( substellar_lon_candidate < 0. ) ] += 2. * np.pi
+
+    lon_substellar = np.mean( substellar_lon_candidate )
     lon_substellar = lon_substellar / deg2rad
 
     print 'lon_substellar', lon_substellar
-    lon_offset =  lon_substellar - substellar_lon_0
+    lon_offset = lon_substellar - substellar_lon_0
 
     print 'lon_offset', lon_offset
     return lon_offset
