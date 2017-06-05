@@ -27,8 +27,6 @@ import util_errors
 import util_interp
 import util_plot
 
-
-
 #=============================================================================
 # functions
 #=============================================================================
@@ -44,7 +42,7 @@ def call_transmission( position_index, params ):
     #------------------------------------------------
     # check range of lookup table
     #------------------------------------------------
-    if MOLABS_ON :
+    if l_molecular_absorption :
         p_lookuptable_min = np.exp( np.min( dict_griddata_logXSofWNTP['coords'][:,1] ) )
         p_lookuptable_max = np.exp( np.max( dict_griddata_logXSofWNTP['coords'][:,1] ) )
         t_lookuptable_min = np.min( dict_griddata_logXSofWNTP['coords'][:,0] )
@@ -57,7 +55,14 @@ def call_transmission( position_index, params ):
     #------------------------------------------------
     # compute spectra
     #------------------------------------------------
-    matrixW_Ftransmit = transmission.raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXSofWNTP, DICT_NonCondensableGas, Z_TOP, Z_NUM, B_NUM, D_L, dict_geom, flag_molabs=MOLABS_ON, flag_rayleigh=RAYLEIGH_ON, flag_cld=CLD_ON, cld_d_eff_ice=CLD_D_EFF_ICE, cld_d_eff_liquid=CLD_D_EFF_LIQUID )
+    matrixW_Ftransmit = transmission.raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXSofWNTP, DICT_NonCondensableGas, 
+                                                       f_Z_top, i_Z_num, i_B_num, f_dL, dict_geom, 
+                                                       flag_molabs=l_molecular_absorption, 
+                                                       flag_rayleigh=l_Rayleigh, 
+                                                       flag_cld=l_cloud )
+#, 
+#                                                       cld_d_eff_liquid=f_cloud_Deff_liquid, 
+#                                                       cld_d_eff_ice=f_cloud_Deff_ice )
 
     return matrixW_Ftransmit
 
@@ -84,10 +89,10 @@ if __name__ == "__main__":
     now = datetime.datetime.now()
     print now.strftime("%Y-%m-%d %H:%M:%S")
 
-    if not DEBUG_ON :
+    if not l_Debug :
 
         # Create directory
-        out_dir = OUTFILE_DIR + OUTFILE_TAG + "/"
+        out_dir = s_outFile_Dir + s_outFile_Tag + "/"
         if os.path.exists( out_dir ):
             print out_dir+" already exists. Overwrite? [y/n] ...", 
             answer = raw_input()
@@ -108,7 +113,7 @@ if __name__ == "__main__":
         print "Saved :", thisfile, " &", setupfile
 
         # Save start time
-        filename_log = OUTFILE_DIR + OUTFILE_TAG + "/time.log"
+        filename_log = s_outFile_Dir + s_outFile_Tag + "/time.log"
         f_log = open( filename_log, 'w')
         f_log.write( "start time: " + now.strftime("%Y-%m-%d %H:%M:%S") + "\n" )
 
@@ -128,16 +133,16 @@ if __name__ == "__main__":
     # input atmospheric profiles
     #------------------------------------------------
 
-    if '.nc' in DATAFILE :
-        list_theta, list_dict_atmprof = read_aijl.extract_limbprof( DATAFILE, DICT_NonCondensableGas, Z_TOP, G_PLANET )
-    elif '.txt' in DATAFILE : 
-        list_theta, list_dict_atmprof = read_ascii.extract_prof( DATAFILE, DICT_NonCondensableGas, Z_TOP, G_PLANET )
+    if '.nc' in s_atmFile :
+        list_theta, list_dict_atmprof = read_aijl.extract_limbprof( s_atmFile, DICT_NonCondensableGas, f_Z_top, G_PLANET )
+    elif '.txt' in s_atmFile : 
+        list_theta, list_dict_atmprof = read_ascii.extract_prof( s_atmFile, DICT_NonCondensableGas, f_Z_top, G_PLANET )
     else :
         util_errors.exit_msg('Unknown format for DATAFILE. ')
 
-    if ATMAVE_ON :
+    if l_atm_average :
 
-        if not ( len( list_theta ) % ATMAVE_NUM == 0 ) :
+        if not ( len( list_theta ) % i_atmave_num == 0 ) :
             util_errors.exit_msg('Irrelevant ATMAVE_NUM. ')
 
         list_ave_dict_atmprof = []
@@ -145,14 +150,14 @@ if __name__ == "__main__":
         jj = 0
         for jj in xrange( len( list_dict_atmprof ) ):
 
-            if ( jj % ATMAVE_NUM == 0 ) :
+            if ( jj % i_atmave_num == 0 ) :
                 list_ave_theta.append( deepcopy( list_theta[jj] ) )
                 list_ave_dict_atmprof.append( deepcopy( list_dict_atmprof[jj] ) )
             else :
                 list_ave_theta[-1] += list_theta[jj]
                 for key in list_dict_atmprof[0] :
                     list_ave_dict_atmprof[-1][key] += list_dict_atmprof[jj][key]
-            if ( jj % ATMAVE_NUM == ATMAVE_NUM - 1 ) :
+            if ( jj % i_atmave_num == i_atmave_num - 1 ) :
                 list_ave_theta[-1] = list_ave_theta[-1] / ( 1. * ATMAVE_NUM )
                 for key in list_dict_atmprof[0] :
                     list_ave_dict_atmprof[-1][key] = list_ave_dict_atmprof[-1][key] / ( 1. * ATMAVE_NUM )
@@ -161,7 +166,7 @@ if __name__ == "__main__":
         list_theta        = deepcopy( list_ave_theta )
 
 
-    if not REFRACTION_ON :
+    if not l_refraction :
 
         for ii in xrange( len( list_dict_atmprof ) ):
             list_dict_atmprof[ii]['dndr'] = np.zeros_like( list_dict_atmprof[0]['dndr'] )
@@ -171,7 +176,7 @@ if __name__ == "__main__":
     # Set wavenumber grid.
     #------------------------------------------------
 
-    if MOLABS_ON :
+    if l_molecular_absorption :
 
         # list of molecules
         list_mol = [ 'H2O', 'O3' ] + DICT_NonCondensableGas.keys()
@@ -180,19 +185,17 @@ if __name__ == "__main__":
         # Adjust wavenumber range
         # if the wavenumber range of the lookup table is narrower, 
         # the wavenumber range of the lookup table is adopted
-        tmp = np.load(  XSFILE_TAG + list_mol[0] + ".npz" )
+        tmp = np.load(  s_xsFile_Tag + list_mol[0] + ".npz" )
         wn_min, wn_max, wn_num = tmp['WN'][0], tmp['WN'][-1], len(tmp['WN'])
 
         # get gridded data of cross section
-        grid_wn, dict_griddata_logXSofWNTP = read_xs.griddata( list_mol, XSFILE_TAG, ( wn_min, wn_max ), cnt_h2o_on=CNTNM_H2O_ON )
+        grid_wn, dict_griddata_logXSofWNTP = read_xs.griddata( list_mol, s_xsFile_Tag, ( wn_min, wn_max ), cnt_h2o_on=l_H2O_continuum )
 
     else :
 
         grid_wn = np.linspace( WN_MIN, WN_MAX, WN_NUM )
         dict_griddata_logXSofWNTP = {}
         
-
-
     #---------------------------------------------------
     # MAIN PART. 
     # calculate transmission at different locations
@@ -201,7 +204,7 @@ if __name__ == "__main__":
     params = ( grid_wn, list_theta, list_dict_atmprof, dict_griddata_logXSofWNTP, DICT_NonCondensableGas, dict_geom )
     list_index = range( len( list_dict_atmprof ) )
     
-    if MULTICORE_ON :
+    if l_multicore :
         matrixW_Ftransmit = call_multicore( list_index, params )
         matrixW_Ftransmit_total = np.sum( np.array( matrixW_Ftransmit ), axis=0 )
         
@@ -213,7 +216,7 @@ if __name__ == "__main__":
             
 
     Fstar = np.pi
-    planet_shadow = np.pi * ( dict_geom['r_planet'] + Z_TOP )**2 / ( dict_geom['r_star']**2 )
+    planet_shadow = np.pi * ( dict_geom['r_planet'] + f_Z_top )**2 / ( dict_geom['r_star']**2 )
     matrixW_Ftransit = Fstar - planet_shadow + matrixW_Ftransmit_total
 
     matrixW_dF    = Fstar - matrixW_Ftransit 
@@ -222,22 +225,22 @@ if __name__ == "__main__":
     matrixW_dFppm = (matrixW_dF/Fstar)*1e6 # ppm
 
 
-    if ( not DEBUG_ON ):
+    if ( not l_Debug ):
         data     = np.c_[ 1e4/grid_wn, matrixW_Heff, matrixW_dFppm  ]
         myheader = '# wavelength [um]\teffective altitude [km]\ttransit depth [ppm]'
-        np.savetxt( OUTFILE_DIR + OUTFILE_TAG + '/transit_Heff_depth', data, header=myheader )
+        np.savetxt( s_outFile_Dir + s_outFile_Tag + '/transit_Heff_depth', data, header=myheader )
 
     #------------------------------------------------
     # Post-processing
     #------------------------------------------------
 
     # Lower resolution.
-    if (LOW_RES_ON):
-        grid2_wn, matrixW2_Heff  = resolution.lower_resolution( grid_wn, matrixW_Heff, RESOLUTION )
-        grid2_wn, matrixW2_dFppm = resolution.lower_resolution( grid_wn, matrixW_dFppm, RESOLUTION )
+    if l_lower_resolution :
+        grid2_wn, matrixW2_Heff  = resolution.lower_resolution( grid_wn, matrixW_Heff, f_resolution )
+        grid2_wn, matrixW2_dFppm = resolution.lower_resolution( grid_wn, matrixW_dFppm, f_resolution )
         data2                    = np.c_[ 1e4/grid2_wn, matrixW2_Heff, matrixW2_dFppm ]
-        if ( not DEBUG_ON ):
-            np.savetxt( OUTFILE_DIR+OUTFILE_TAG+"/transit_Heff_depth_R"+str(RESOLUTION), data2, header=myheader )
+        if ( not l_Debug ):
+            np.savetxt( s_outFile_Dir + s_outFile_Tag + "/transit_Heff_depth_R"+str( int( f_resolution ) ), data2, header=myheader )
 
     #------------------------------------------------
     # End.
@@ -247,7 +250,7 @@ if __name__ == "__main__":
     print now.strftime("%Y-%m-%d %H:%M:%S")
     print ''
 
-    if not DEBUG_ON :
+    if not l_Debug :
 
         f_log.write( "end time: " + now.strftime("%Y-%m-%d %H:%M:%S") + "\n" )
         f_log.close()

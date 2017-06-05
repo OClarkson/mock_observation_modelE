@@ -17,7 +17,7 @@ TAU_MAX = 1000.
 
 
 #=============================================================================
-def raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXSofWNTP, dict_NonCondensableGas, z_top, z_num, b_num, d_l, dict_geom, flag_molabs=True, flag_rayleigh=True, flag_cld=False, cld_d_eff_ice=30e-4, cld_d_eff_liquid=10e-4 ):
+def raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXSofWNTP, dict_NonCondensableGas, z_top, z_num, b_num, d_l, dict_geom, flag_molabs=True, flag_rayleigh=True, flag_cld=False ) :
 
     #------------------------------------------------
     # set up atmospheric profile
@@ -53,7 +53,7 @@ def raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXS
     if flag_rayleigh :
         matrixWZ_nXS += opacity.get_nXS_Rayleigh( layer_z, grid_wn, dict_NonCondensableGas, dict_atmprof_funcZ )
     if flag_cld :
-        matrixWZ_nXS += opacity.get_nXS_cld( layer_z, grid_wn, dict_atmprof_funcZ, cld_d_eff_ice, cld_d_eff_liquid )
+        matrixWZ_nXS += opacity.get_nXS_cld( layer_z, grid_wn, dict_atmprof_funcZ )
     # delta l
     matrixBZ_dl      = np.zeros( [ b_num, z_num ] )
 

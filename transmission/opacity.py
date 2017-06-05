@@ -4,10 +4,13 @@ import cgs
 import sys
 from copy import deepcopy
 
-from setup import FACTOR
 from constants import RHO_H2O
 
 from molecules import molecules
+
+from setup import l_cloud
+if l_cloud :
+    from setup import f_cloud_Deff_liquid, f_cloud_Deff_ice, f_factor
 
 #=============================================================================
 def get_nXS_molabs( layer_z, grid_wn, dict_griddata_logXSofWNTP, dict_NonCondensableGas, dict_atmprof_funcZ ) :
@@ -98,12 +101,13 @@ def get_nXS_Rayleigh( layer_z, grid_wn, dict_NonCondensableGas, dict_atmprof_fun
 
 
 #=============================================================================
-def get_nXS_cld( layer_z, grid_wn, dict_atmprof_funcZ, cld_d_eff_ice, cld_d_eff_liquid ) :
+def get_nXS_cld( layer_z, grid_wn, dict_atmprof_funcZ ) :
     """
     Opacity due to cloud particles
     """
 
-    CCC = 2.* FACTOR
+
+    CCC = 2.* f_factor
 
     matrixWZ_wn, matrixWZ_z = np.meshgrid( grid_wn, layer_z, indexing='ij' )
 
@@ -112,12 +116,12 @@ def get_nXS_cld( layer_z, grid_wn, dict_atmprof_funcZ, cld_d_eff_ice, cld_d_eff_
     # ice
     matrixWZ_icecld      = dict_atmprof_funcZ['icecld']( matrixWZ_z )
     matrixWZ_rho_cld_ice = matrixWZ_rho_atm * matrixWZ_icecld
-    matrixWZ_nXS         = 3. * CCC * matrixWZ_rho_cld_ice / ( 4. * cld_d_eff_ice ) / RHO_H2O
+    matrixWZ_nXS         = 3. * CCC * matrixWZ_rho_cld_ice / ( 4. * f_cloud_Deff_ice ) / RHO_H2O
 
     # liquid
     matrixWZ_wtrcld         = dict_atmprof_funcZ['wtrcld']( matrixWZ_z )
     matrixWZ_rho_cld_liquid = matrixWZ_rho_atm * matrixWZ_wtrcld
-    matrixWZ_nXS           += 3. * CCC * matrixWZ_rho_cld_liquid / ( 4. * cld_d_eff_liquid ) / RHO_H2O
+    matrixWZ_nXS           += 3. * CCC * matrixWZ_rho_cld_liquid / ( 4. * f_cloud_Deff_liquid ) / RHO_H2O
 
     return matrixWZ_nXS
 
