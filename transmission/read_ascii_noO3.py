@@ -70,17 +70,6 @@ def extract_prof( infile, dict_NonCondensableGas, z_top, g_planet ) :
     dndr_layers[-1] = ( refrac_layers[-1] - refrac_layers[-2] ) / ( dict_atmprof['z'][-1] - dict_atmprof['z'][-2] )
     dict_atmprof['dndr'] = -1.*deepcopy( dndr_layers ) # flip the sign
 
-    # polarizibility
-    polar_layers = molecules['H2O']['polarizability'] * dict_atmprof['xH2O']
-    sum_layers   = deepcopy( dict_atmprof['xH2O'] )
-    for molename in dict_NonCondensableGas :
-        if dict_NonCondensableGas[molename]=='otherwise' :
-            polar_otherwise = molecules[molename]['polarizability']
-        else :
-            polar_layers += molecules[molename]['polarizability'] * ( 1. - dict_atmprof['xH2O'] ) * dict_NonCondensableGas[molename]
-            sum_layers   += ( 1. - dict_atmprof['xH2O'] ) * dict_NonCondensableGas[molename]
-    polar_layers += polar_otherwise * ( 1. - sum_layers )
-    dict_atmprof['polarizability'] = polar_layers
 
     list_dict_atmprof = [ dict_atmprof ]
     list_theta        = [ 0. ]

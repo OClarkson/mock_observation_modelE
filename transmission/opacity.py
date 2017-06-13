@@ -72,7 +72,6 @@ def get_nXS_Rayleigh( layer_z, grid_wn, dict_NonCondensableGas, dict_atmprof_fun
     matrixZ_xH2O  = dict_atmprof_funcZ['xH2O'    ]( layer_z )
     matrixZ_xO3   = dict_atmprof_funcZ['xO3'     ]( layer_z )
     matrixZ_n0    = dict_atmprof_funcZ['ndensity']( layer_z ) * cgs.NA
-    matrixZ_polar = dict_atmprof_funcZ['polarizability']( layer_z )
     matrixZ_alpha = np.zeros_like( layer_z )
 
     list_mol = dict_NonCondensableGas.keys() + ['H2O', 'O3']
@@ -126,22 +125,3 @@ def get_nXS_cld( layer_z, grid_wn, dict_atmprof_funcZ ) :
     return matrixWZ_nXS
 
 
-#=============================================================================
-def get_nXS_Rayleigh_old( layer_z, grid_wn, dict_NonCondensableGas, dict_atmprof_funcZ, dict_griddata_logXSofWNTP ) :
-    """
-    Rayleigh scattering
-    """
-
-    matrixWZ_wn, matrixWZ_z = np.meshgrid( grid_wn, layer_z, indexing='ij' )
-
-    matrixWZ_pres  = dict_atmprof_funcZ['plm']( matrixWZ_z )
-    matrixWZ_temp  = dict_atmprof_funcZ['TempL']( matrixWZ_z )
-    matrixWZ_n     = dict_atmprof_funcZ['ndensity']( matrixWZ_z ) * cgs.NA
-    matrixWZ_polar = dict_atmprof_funcZ['polarizability']( matrixWZ_z )
-
-    matrixWZ_wl   = 1.0 / matrixWZ_wn
-    matrixWZ_XS   = 128.0 * np.pi**5 / ( 3.0 * matrixWZ_wl**4 ) * matrixWZ_polar**2
-
-    matrixWZ_nXS = matrixWZ_n * matrixWZ_XS
-
-    return matrixWZ_nXS
