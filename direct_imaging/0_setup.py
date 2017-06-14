@@ -20,15 +20,6 @@ f_InclinationAngle_deg            =  90. # inclination of the planetary orbit wi
 f_PhaseAngle_Equinox_deg          = -90. # orbital phase of the spring equinox [deg]
 f_SubStellarLongitude_Initial_deg = -180. # longitude substellar point at the start of observation [deg]
 
-l_FullOrbit = True
-if l_FullOrbit : 
-    i_DivideOrbit = 100
-else :
-    f_PhaseAngle_Initial_deg = -90. # orbital phase of planet at the start of observation [deg]
-    f_TimeInterval_hr        =   1. # time interval of observation [hr]
-    f_TimeLimit_hr           =  24. # duration of observation [hr]    
-
-
 #------------------------------------------------
 # 3. computation mode
 #------------------------------------------------
@@ -38,6 +29,15 @@ l_ShortWave_LightCurve = True # shortwave, lightcurve
 l_ShortWave_Spectrum   = True # shortwave, spectrum
 l_LongWave_LightCurve  = True # longwave,  lightcurve
 l_LongWave_Spectrum    = True # longwave,  spectrum
+
+l_FullOrbit = True
+if l_FullOrbit : 
+    i_DivideOrbit = 100
+else :
+    f_PhaseAngle_Initial_deg = -90. # orbital phase of planet at the start of observation [deg]
+    f_TimeInterval_hr        =   1. # time interval of observation [hr]
+    f_TimeLimit_hr           =  24. # duration of observation [hr]    
+
 
 #------------------------------------------------
 # 4. Advanced
