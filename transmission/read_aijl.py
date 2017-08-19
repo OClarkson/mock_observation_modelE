@@ -48,7 +48,8 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
         util_errors.warning_longmsg( [ 'This program assumes that the sub-stellar point is at 0 degree  ', 
                                        'in latitude and at -180 degree in longitude.                    ', 
                                        'Make sure your aijl file is consistent with it.                 ', 
-                                       'Temperature maximum is found away from it hence this warning.   '] )
+                                       'Temperature maximum is found away from it hence this warning.   ', 
+                                       'If the planet is NOT tidally locked, you may ignore this warning. '] )
 
     # west limb ( west from the substellar point,  90 degree longitude )
     ilon_limb_w = np.array( [ np.where(lon[:] > 90.0)[0][0] , np.where(lon[:] > 90.0)[0][0]-1 ] )
@@ -112,8 +113,8 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
             dict_atmprof = extrapolate_to_z_top( z_top, dict_atmprof, g_planet, param, mu_air_dry )
 
             # input O3
-            # dict_atmprof['xO3']   = set_O3.read_O3file( 'data/prof_O3_ppm.txt', dict_atmprof['plm']/cgs.mbar_to_barye ) * 0.
-            dict_atmprof['xO3']   = set_O3.read_O3file( 'data/prof_O3_ppm.txt', dict_atmprof['plm']/cgs.mbar_to_barye )
+            dict_atmprof['xO3']   = set_O3.read_O3file( 'data/prof_O3_ppm.txt', dict_atmprof['plm']/cgs.mbar_to_barye ) * 0.
+            # dict_atmprof['xO3']   = set_O3.read_O3file( 'data/prof_O3_ppm.txt', dict_atmprof['plm']/cgs.mbar_to_barye )
 
             # H2O vapor mixing ratio
             dict_atmprof['xH2O'] = dict_atmprof['q'] / constants.MU_H2O / ( dict_atmprof['q'] / constants.MU_H2O + ( 1 - dict_atmprof['q'] ) / mu_air_dry )
