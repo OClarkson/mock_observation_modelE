@@ -70,7 +70,7 @@ def call_transmission( position_index, params ):
 #=============================================================================
 def call_multicore( list_index, params ):
 
-    p = multiprocessing.Pool( CORE_NUM )
+    p = multiprocessing.Pool( i_core_num )
     result = p.map( functools.partial( call_transmission, params=params ), list_index )
     return result
 
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     if l_atm_average :
 
         if not ( len( list_theta ) % i_atmave_num == 0 ) :
-            util_errors.exit_msg('Irrelevant ATMAVE_NUM. ')
+            util_errors.exit_msg('Irrelevant i_atmave_num. ')
 
         list_ave_dict_atmprof = []
         list_ave_theta = []
@@ -158,9 +158,9 @@ if __name__ == "__main__":
                 for key in list_dict_atmprof[0] :
                     list_ave_dict_atmprof[-1][key] += list_dict_atmprof[jj][key]
             if ( jj % i_atmave_num == i_atmave_num - 1 ) :
-                list_ave_theta[-1] = list_ave_theta[-1] / ( 1. * ATMAVE_NUM )
+                list_ave_theta[-1] = list_ave_theta[-1] / ( 1. * i_atmave_num )
                 for key in list_dict_atmprof[0] :
-                    list_ave_dict_atmprof[-1][key] = list_ave_dict_atmprof[-1][key] / ( 1. * ATMAVE_NUM )
+                    list_ave_dict_atmprof[-1][key] = list_ave_dict_atmprof[-1][key] / ( 1. * i_atmave_num )
                 
         list_dict_atmprof = deepcopy( list_ave_dict_atmprof )
         list_theta        = deepcopy( list_ave_theta )
