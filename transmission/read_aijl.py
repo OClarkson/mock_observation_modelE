@@ -49,7 +49,7 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
                                        'in latitude and at -180 degree in longitude.                    ', 
                                        'Make sure your aijl file is consistent with it.                 ', 
                                        'Temperature maximum is found away from it hence this warning.   ', 
-                                       'If the planet is NOT tidally locked, you may ignore this warning. '] )
+                                       'Ignore this warning if the planet is NOT synchronously rotating.'] )
 
     # west limb ( west from the substellar point,  90 degree longitude )
     ilon_limb_w = np.array( [ np.where(lon[:] > 90.0)[0][0] , np.where(lon[:] > 90.0)[0][0]-1 ] )
