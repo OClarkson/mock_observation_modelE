@@ -11,6 +11,8 @@ def read_nc( infile, mode=False, param_in=False ):
     To read netCDF file and extract albedo / outgoing flux
     """
 
+    print "infile", infile
+
     # read file
     ncfile_r = netCDF4.Dataset( infile, 'r', format='NETCDF3_64BIT')        
     lat      = ncfile_r.variables['lat'][:]
@@ -23,7 +25,7 @@ def read_nc( infile, mode=False, param_in=False ):
         param = param_in
     elif ( mode == "SW" or mode == "sw" ):
         param = 'srup_toa_band_'
-    elif ( mode == 'LW', mode == "lw" ) :
+    elif ( mode == 'LW' or mode == "lw" ) :
         param = 'trup_toa_band_'
     else:
         errors.exit_msg( "Invalid mode ( SW of LW )" )
