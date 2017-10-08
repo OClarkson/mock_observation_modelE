@@ -34,6 +34,9 @@ DICT_NonCondensableGas = { 'O2' : 20.9476e-2,
                            'CH4': 1.8e-6, 
                            'N2' : 'otherwise' }
 
+l_O3 = True
+s_O3file='data/prof_O3_ppm.txt'
+
 #------------------------------------------------
 # 4. computation mode
 #------------------------------------------------
