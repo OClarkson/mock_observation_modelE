@@ -179,8 +179,10 @@ if __name__ == "__main__":
     if l_molecular_absorption :
 
         # list of molecules
-        list_mol = [ 'H2O', 'O3' ] + DICT_NonCondensableGas.keys()
-#        list_mol = [ 'H2O' ] + DICT_NonCondensableGas.keys()
+        if l_O3 :
+            list_mol = [ 'H2O', 'O3' ] + DICT_NonCondensableGas.keys()
+        else :
+            list_mol = [ 'H2O' ] + DICT_NonCondensableGas.keys()
 
         # Adjust wavenumber range
         # if the wavenumber range of the lookup table is narrower, 

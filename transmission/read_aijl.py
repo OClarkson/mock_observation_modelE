@@ -5,6 +5,8 @@ from copy import deepcopy
 from molecules import *
 import set_O3
 
+from setup import l_O3, s_O3file
+
 import cgs
 import constants
 import util_errors
@@ -113,8 +115,8 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
             dict_atmprof = extrapolate_to_z_top( z_top, dict_atmprof, g_planet, param, mu_air_dry )
 
             # input O3
-            dict_atmprof['xO3']   = set_O3.read_O3file( 'data/prof_O3_ppm.txt', dict_atmprof['plm']/cgs.mbar_to_barye ) * 0.
-            # dict_atmprof['xO3']   = set_O3.read_O3file( 'data/prof_O3_ppm.txt', dict_atmprof['plm']/cgs.mbar_to_barye )
+            if l_O3 :
+                dict_atmprof['xO3']   = set_O3.read_O3file( s_O3file, dict_atmprof['plm']/cgs.mbar_to_barye )
 
             # H2O vapor mixing ratio
             dict_atmprof['xH2O'] = dict_atmprof['q'] / constants.MU_H2O / ( dict_atmprof['q'] / constants.MU_H2O + ( 1 - dict_atmprof['q'] ) / mu_air_dry )
@@ -128,7 +130,8 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
 
             # refractivity
             refrac_layers  = molecules['H2O']['refractivity'] * ( dict_atmprof['ndensity'] * dict_atmprof['xH2O'] ) / cgs.amagat 
-#            refrac_layers  = molecules['O3']['refractivity']  * ( dict_atmprof['ndensity'] * dict_atmprof['xO3'] ) / cgs.amagat 
+            if l_O3 :
+                refrac_layers  = molecules['O3']['refractivity']  * ( dict_atmprof['ndensity'] * dict_atmprof['xO3'] ) / cgs.amagat 
 
 
             sum_layers     = deepcopy( dict_atmprof['xH2O'] )

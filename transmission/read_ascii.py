@@ -3,7 +3,9 @@ import numpy as np
 from copy import deepcopy
 
 from molecules import *
+
 import set_O3
+from setup import l_O3, s_O3file
 
 import cgs
 import constants
@@ -36,8 +38,8 @@ def extract_prof( infile, dict_NonCondensableGas, z_top, g_planet ) :
     dict_atmprof['q']    = atmprof[3][::-1]
 
     # O3
-    dict_atmprof['xO3']   = set_O3.read_O3file( 'data/prof_O3_ppm.txt', dict_atmprof['plm']  )
-#    dict_atmprof['xO3']   = np.zeros_like( dict_atmprof['plm'] )
+    if l_O3 :
+        dict_atmprof['xO3']   = set_O3.read_O3file( s_O3file, dict_atmprof['plm']  )
 
     # unit conversion
     dict_atmprof['z']    = dict_atmprof['z']  *cgs.km_to_cm

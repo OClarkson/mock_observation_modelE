@@ -8,7 +8,7 @@ from constants import RHO_H2O
 
 from molecules import molecules
 
-from setup import l_cloud
+from setup import l_cloud, l_O3
 if l_cloud :
     from setup import f_cloud_Deff_liquid, f_cloud_Deff_ice, f_factor
 
@@ -18,7 +18,10 @@ def get_nXS_molabs( layer_z, grid_wn, dict_griddata_logXSofWNTP, dict_NonCondens
     matrixZ_pres = dict_atmprof_funcZ['plm'  ]( layer_z )
     matrixZ_temp = dict_atmprof_funcZ['TempL']( layer_z )
     matrixZ_xH2O = dict_atmprof_funcZ['xH2O' ]( layer_z )
-    matrixZ_xO3  = dict_atmprof_funcZ['xO3'  ]( layer_z )
+    if l_O3 :
+        matrixZ_xO3  = dict_atmprof_funcZ['xO3'  ]( layer_z )
+    else :
+        matrixZ_xO3 = np.zeros_like( matrixZ_xH2O )
     flat_points = np.c_[ matrixZ_temp, np.log( matrixZ_pres ) ]
 
     matrixWZ_nXS = np.zeros( [ len( grid_wn ), len( layer_z ) ] )
@@ -70,12 +73,18 @@ def get_nXS_Rayleigh( layer_z, grid_wn, dict_NonCondensableGas, dict_atmprof_fun
     matrixZ_pres  = dict_atmprof_funcZ['plm'     ]( layer_z )
     matrixZ_temp  = dict_atmprof_funcZ['TempL'   ]( layer_z )
     matrixZ_xH2O  = dict_atmprof_funcZ['xH2O'    ]( layer_z )
-    matrixZ_xO3   = dict_atmprof_funcZ['xO3'     ]( layer_z )
+    if l_O3 :
+        matrixZ_xO3   = dict_atmprof_funcZ['xO3'     ]( layer_z )
+    else :
+        matrixZ_xO3 = np.zeros_like( matrixZ_xH2O )
+
     matrixZ_n0    = dict_atmprof_funcZ['ndensity']( layer_z ) * cgs.NA
     matrixZ_alpha = np.zeros_like( layer_z )
 
-    list_mol = dict_NonCondensableGas.keys() + ['H2O', 'O3']
-#    list_mol = dict_NonCondensableGas.keys() + ['H2O']
+    if l_O3 :
+        list_mol = dict_NonCondensableGas.keys() + ['H2O', 'O3']
+    else :
+        list_mol = dict_NonCondensableGas.keys() + ['H2O']
 
     for molename in list_mol :
 
