@@ -230,6 +230,10 @@ if __name__ == "__main__":
     matrixW_Heff  = matrixW_Heff  * 1e-5 # cm => km
     matrixW_dFppm = (matrixW_dF/Fstar)*1e6 # ppm
 
+    # reverse the order
+    grid_wl    = 1e4 / grid_wn[::-1]
+    matrixW_Heff  = matrixW_Heff[::-1]
+    matrixW_dFppm = matrixW_dFppm[::-1]
 
     #------------------------------------------------
     # Output
@@ -237,7 +241,7 @@ if __name__ == "__main__":
 
     if ( not l_Debug ):
 
-        data     = np.c_[ 1e4/grid_wn, matrixW_Heff, matrixW_dFppm  ]
+        data     = np.c_[ grid_wl, matrixW_Heff, matrixW_dFppm  ]
         myheader = '# wavelength [um]\teffective altitude [km]\ttransit depth [ppm]'
         np.savetxt( s_outFile_Dir + s_outFile_Tag + '/transit_Heff_depth', data, header=myheader )
 
@@ -247,16 +251,15 @@ if __name__ == "__main__":
 
         # Lower resolution.
         if l_lower_resolution :
-            grid_wn0 = deepcopy( grid_wn )
-            grid_wn, matrixW_Heff  = resolution.lower_resolution( grid_wn0, matrixW_Heff, f_resolution )
-            grid_wn, matrixW_dFppm = resolution.lower_resolution( grid_wn0, matrixW_dFppm, f_resolution )
+            matrixW_Heff  = resolution.lower_resolution( grid_wl,  matrixW_Heff, f_resolution )
+            matrixW_dFppm = resolution.lower_resolution( grid_wl, matrixW_dFppm, f_resolution )
 
-            data  = np.c_[ 1e4/grid_wn, matrixW_Heff, matrixW_dFppm ]
+            data  = np.c_[ grid_wl, matrixW_Heff, matrixW_dFppm ]
             np.savetxt( s_outFile_Dir + s_outFile_Tag + "/transit_Heff_depth_R"+str( int( f_resolution ) ), data, header=myheader )
 
         # Make a plot
         if l_Plot :
-            plot.plot_sp( out_dir, dict_geom, grid_wn, matrixW_Heff, matrixW_dFppm )
+            plot.plot_sp( out_dir, dict_geom, grid_wl, matrixW_Heff, matrixW_dFppm )
 
     #------------------------------------------------
     # End.

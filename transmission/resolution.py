@@ -1,11 +1,18 @@
 import numpy as np
 
 
+
+#=============================================================================
+def gaussian( wl, wl0, resolution ):
+
+    FWHM   = wl0 / resolution
+    sigma  = FWHM / ( 2. * np.sqrt( 2. * np.log( 2 ) ) )
+    result = 1. / np.sqrt( 2. * np.pi * sigma**2 ) * np.exp( - ( wl - wl0 )**2 / ( 2. * sigma**2 ) )
+    return result
+
 #=============================================================================
 def make_wngrid( wn_min, wn_max, resolution ):
 
-    #    R = ( wn + dwn / 2 ) /  dwn
-    # => dwn = wn / ( R - 1./2. )
     list_wn_edge   = [ wn_min ]
     list_wn_center = [  ]
     wn = wn_min
@@ -20,26 +27,17 @@ def make_wngrid( wn_min, wn_max, resolution ):
 
 
 #=============================================================================
-def lower_resolution( grid_wn, grid_sp, resolution ):
+def lower_resolution( grid_wl, matrixW_sp, resolution ):
 
-    grid2_wn_edge, grid2_wn_center = make_wngrid( grid_wn[0], grid_wn[-1], resolution )
+    # integral[ exp( - ( wl_i - wl_center) / sigma_center ) * sp ( wl_i ) * d wl_i ]
 
-    jj = 0
-    sp_new_array = np.zeros( len( grid2_wn_edge ) - 1 )
-    count = 0
-    for ii in range(len(grid_wn)):
+    mesh_wl0, mesh_wl = np.meshgrid( grid_wl, grid_wl, indexing='ij' )
+    matrixW_convfunc  = gaussian( mesh_wl, mesh_wl0, resolution )
 
-        if grid_wn[ii] > grid2_wn_edge[jj+1] :
-            sp_new_array[jj] = sp_new_array[jj]/(count*1.0)
-            jj    = np.where( grid_wn[ii] > grid2_wn_edge )[0][-1]
-            count = 0
+    matrixW_central = np.r_[ grid_wl[0], 0.5 * ( grid_wl[:-1] + grid_wl[1:] ), grid_wl[-1] ]
+    matrixW_dwl     = np.diff( matrixW_central )
+    matrixW_sp_new    = np.dot( matrixW_convfunc, matrixW_sp * matrixW_dwl ) 
 
-        sp_new_array[jj] += grid_sp[ii]
-        count += 1
-
-    sp_new_array[jj] = sp_new_array[jj]/(count*1.0)
-
-    return grid2_wn_center, sp_new_array
-
+    return matrixW_sp_new
 
 
