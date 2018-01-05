@@ -10,21 +10,6 @@ def gaussian( wl, wl0, resolution ):
     result = 1. / np.sqrt( 2. * np.pi * sigma**2 ) * np.exp( - ( wl - wl0 )**2 / ( 2. * sigma**2 ) )
     return result
 
-#=============================================================================
-def make_wngrid( wn_min, wn_max, resolution ):
-
-    list_wn_edge   = [ wn_min ]
-    list_wn_center = [  ]
-    wn = wn_min
-    while wn < wn_max :
-        dwn = wn / ( resolution - 0.5 )
-        list_wn_center.append( wn + 0.5*dwn  )
-        wn = wn + dwn
-        list_wn_edge.append( wn )
-    grid_wn_edge   = np.array( list_wn_edge   )
-    grid_wn_center = np.array( list_wn_center )
-    return grid_wn_edge, grid_wn_center
-
 
 #=============================================================================
 def lower_resolution( grid_wl, matrixW_sp, resolution ):
