@@ -190,8 +190,12 @@ if __name__ == "__main__":
         tmp = np.load(  s_xsFile_Tag + list_mol[0] + ".npz" )
         wn_min, wn_max, wn_num = tmp['WN'][0], tmp['WN'][-1], len(tmp['WN'])
 
-        # get gridded data of cross section
-        grid_wn, dict_griddata_logXSofWNTP = read_xs.griddata( list_mol, s_xsFile_Tag, ( wn_min, wn_max ), cnt_h2o_on=l_H2O_continuum )
+        # get gridded data of cross section from HITRAN
+        grid_wn, dict_griddata_logXSofWNTP = read_xs.griddata_line( list_mol, s_xsFile_Tag, ( wn_min, wn_max ), cnt_h2o_on=l_H2O_continuum )
+
+        if l_O3 and wn_max > 1.e4 : # shortward of wavelength=1um
+            dict_griddata_logXSofWNTP = read_xs.griddata_add_UV( 'O3', 'data/SerdyuchenkoGorshelevVersionJuly2013.dat', grid_wn, dict_griddata_logXSofWNTP )
+
 
     else :
 

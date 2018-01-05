@@ -2,6 +2,9 @@ import numpy as np
 import util_errors
 import cgs
 from molecules import *
+import pandas as pd
+from scipy import interpolate
+
 
 #=============================================================================
 def nearestindex_WN(WN_lattice, wn) :
@@ -52,7 +55,7 @@ def read_lookuptable( xsfile, wn_limit ):
 
 
 #=============================================================================
-def griddata( list_mol, XSFILE_TAG, wn_range, cnt_h2o_on=False ):
+def griddata_line( list_mol, XSFILE_TAG, wn_range, cnt_h2o_on=False ):
 
     wn_min, wn_max = wn_range
 
@@ -86,4 +89,49 @@ def griddata( list_mol, XSFILE_TAG, wn_range, cnt_h2o_on=False ):
     dict_griddata_logXSofWNTlogP['coords'] = np.c_[ m_Tgrid.flatten(), m_logPgrid.flatten() ]
 
     return WN_lookuptable, dict_griddata_logXSofWNTlogP
+
+
+#=============================================================================
+def griddata_add_UV( molename, filename, grid_wn, dict_griddata_logXSofWNTP ):
+
+    # read UV continuum absorption data
+    print "Reading " + filename + " for " + molename + "...   "
+    UVdata   = pd.read_table( filename, comment='#' )
+    table_XS = UVdata.iloc[:,1:].as_matrix()
+    table_T  = UVdata.columns[1:].astype( float ) 
+    table_WL = UVdata.iloc[:,0].as_matrix()
+    table_WN = 1e7 / table_WL
+
+    # reverse 
+    table_WN = table_WN[::-1]
+    table_XS = table_XS[::-1,:]
+    table_logXS = np.log( table_XS )
+
+    mesh_WN, mesh_T = np.meshgrid( table_WN, table_T, indexing='ij' )
+    points = np.c_[ mesh_WN.flatten(), mesh_T.flatten() ]
+    values = table_logXS.flatten()
+
+    # interpolate to match the grids of line absorption cross section    
+    # -------------------------------------------
+    # NOTE:
+    # dimension of dict_interpolate.griddata_logXSofWNTP['XS']
+    #  WN x T x P
+    # -------------------------------------------
+    grid_t = np.unique( dict_griddata_logXSofWNTP['coords'][:,0] )
+    grid_p = np.unique( dict_griddata_logXSofWNTP['coords'][:,1] )
+    mesh_wn, mesh_t = np.meshgrid( grid_wn, grid_t, indexing='ij' )
+    xi     = np.c_[ mesh_wn.flatten(), mesh_t.flatten() ]
+
+    xi_logXS = interpolate.griddata( points, values, xi, method='nearest', fill_value=-48 )
+
+    mesh_logXS = xi_logXS.reshape( [ len( grid_wn ), len( grid_t ), 1 ] )
+    mesh_logXS = np.tile( mesh_logXS, len( grid_p ) ).reshape( [ len( grid_wn ), len( grid_t )*len( grid_p ) ] )
+    tmp = np.exp( dict_griddata_logXSofWNTP[molename] ) + np.exp( mesh_logXS )
+    dict_griddata_logXSofWNTP[molename] = np.log( tmp )
+
+    return dict_griddata_logXSofWNTP
+
+
+
+
 
