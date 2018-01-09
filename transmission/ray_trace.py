@@ -116,10 +116,9 @@ def refraction( layer_b, r_planet, dict_atmprof_funcZ, d_l ):
             zz_new      = array_X_new[1]
             beta_new    = array_X_new[2]
 
+            ll, zz, beta, phi = array_X
 
             if ( beta_new < 0. ):
-
-                ll, zz, beta, phi = array_X
 
                 # minimum altitude
                 inv_curvature = np.cos( beta ) / ( 1. + nn ) * dndr
@@ -135,6 +134,7 @@ def refraction( layer_b, r_planet, dict_atmprof_funcZ, d_l ):
                 # l as a function of z
                 array_l = l_max - np.array( list_l )
                 array_z = np.array( list_z )
+
                 func_lofz = util_interp.interp_1d_boundary( array_z[::-1], array_l[::-1], logx=False, logy=False, ext=3 )
 
                 break
@@ -155,7 +155,6 @@ def refraction( layer_b, r_planet, dict_atmprof_funcZ, d_l ):
             util_errors.exit_msg('The ray is not fully traced. Increase LOOPMAX in ray_trace.py')
 
         listB_func_lofz.append( func_lofz )
-
 
     b_bottom_indx += 1
 
