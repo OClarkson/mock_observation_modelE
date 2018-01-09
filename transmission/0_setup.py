@@ -90,6 +90,9 @@ l_Plot = True
 #------------------------------------------------
 # 5. computational parameters
 # CHECK CONVERGENCE BY CHANGING THEM !!
+#   more accurate when
+#   f_Z_top, i_Z_num, i_B_num are larger
+#   f_dL is smaller
 #------------------------------------------------
 
 # altitude of top of atmosphere
@@ -101,7 +104,7 @@ i_Z_num = 100
 i_B_num = 100
 
 # increment for ray tracing
-f_dL    = 1.e5 # cm => 0.1 km
+f_dL    = 1.e6 # cm => 0.1 km
 
 #------------------------------------------------
 # 6. Advanced

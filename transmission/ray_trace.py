@@ -1,25 +1,70 @@
 import numpy as np
 import util_interp
 import sys
+import copy
 
 LOOPMAX = 100000
 
 
 #=============================================================================
-def evolve_l_refraction( ll, zz, beta, phi, nn, dndr, r_planet, d_l ):
+def RK4( list_dXds, array_X, ds ): 
 
+    # X : l(s), z(h), beta, phi, xi
+    n_var   = len( array_X )
+    array_k = np.zeros([ 4, n_var ])
+
+    # k0
+    for ii in xrange( n_var ):
+        array_k[0,ii] = list_dXds[ii]( array_X )
+    # k1
+    array_X_1 = array_X + 0.5*array_k[0]*ds
+    for ii in xrange( n_var ):
+        array_k[1,ii] = list_dXds[ii]( array_X_1 )
+    # k2
+    array_X_2 = array_X + 0.5*array_k[1]*ds
+    for ii in xrange( n_var ):
+        array_k[2,ii] = list_dXds[ii]( array_X_2 )
+    # k3
+    array_X_3 = array_X + array_k[2]*ds
+    for ii in xrange( n_var ):
+        array_k[3,ii] = list_dXds[ii]( array_X_3 )
+
+    # step forward
+    array_X += ( array_k[0] + 2.*array_k[1] + 2.*array_k[2] + array_k[3] ) * ds / 6.
+
+    return array_X
+
+
+#=============================================================================
+
+#=============================================================================
+def evolve_l_refraction( array_X, nn, dndr, r_planet, d_l ):
+
+    # van der Werf (2008)
+    # integration variable = s ( = l here )
+
+    ll, zz, beta, phi = array_X
     inv_curvature = np.cos( beta ) / ( 1. + nn ) * dndr
 
-    d_z    = np.sin( beta ) * d_l
-    d_phi  = np.cos( beta ) / ( r_planet + zz ) * d_l
-    d_beta = inv_curvature * d_l - d_phi
+    def ds_ds( array_X_tmp ):
+        return 1.
 
-    ll_new   = ll   + d_l
-    zz_new   = zz   - d_z
-    beta_new = beta + d_beta
-    phi_new  = phi  + d_phi
+    def dz_ds( array_X_tmp ):
+        ll, zz, beta, phi = array_X_tmp
+        return -1.*np.sin( beta )
 
-    return ll_new, zz_new, beta_new, phi_new
+    def dbeta_ds( array_X_tmp ):
+        ll, zz, beta, phi = array_X_tmp
+        return inv_curvature - 1. * np.cos( beta ) / ( r_planet + zz ) 
+
+    def dphi_ds( array_X_tmp ):
+        ll, zz, beta, phi = array_X_tmp
+        return np.cos( beta ) / ( r_planet + zz )
+
+    list_dXds = [ ds_ds, dz_ds, dbeta_ds, dphi_ds ]
+    array_X   = RK4( list_dXds, array_X, d_l )
+
+    return array_X
 
 
 #=============================================================================
@@ -45,36 +90,41 @@ def refraction( layer_b, r_planet, dict_atmprof_funcZ, d_l ):
         # the planet is on the right-hand side
         # ray is traced from the planet
         #------------------------------------------------
-
         ll   = 0.
-        z_i  = layer_b[ii]
+
+        # height
+        zz   = z_top      
 
         # angle from the horizontal line to the ray
+        z_i  = layer_b[ii]
         beta = np.arccos( ( r_planet + z_i ) / ( r_planet + z_top )  ) 
 
         # planet-centric angle
         phi  = -1. * beta 
 
-        # radius
-        zz   = z_top      
-        phi_ini = phi
+        array_X = np.array([ ll, zz, beta, phi ])
 
         list_l = []
         list_z = []
 
         for loop in xrange( LOOPMAX ) :
 
-            nn   = dict_atmprof_funcZ['refractivity']( zz )
-            dndr = dict_atmprof_funcZ['dndr']( zz )
-            ll_new, zz_new, beta_new, phi_new = evolve_l_refraction( ll, zz, beta, phi, nn, dndr, r_planet, d_l )
+            nn   = dict_atmprof_funcZ['refractivity']( array_X[1] )
+            dndr = dict_atmprof_funcZ['dndr']( array_X[1] )
+
+            array_X_new = evolve_l_refraction( array_X, nn, dndr, r_planet, d_l )
+            zz_new      = array_X_new[1]
+            beta_new    = array_X_new[2]
+
 
             if ( beta_new < 0. ):
+
+                ll, zz, beta, phi = array_X
 
                 # minimum altitude
                 inv_curvature = np.cos( beta ) / ( 1. + nn ) * dndr
                 d_l_adjust = beta / ( np.cos( beta ) / ( r_planet + zz ) + inv_curvature )
-                ll, zz, beta, phi = evolve_l_refraction( ll, zz, beta, phi, nn, dndr, r_planet, d_l_adjust )
-
+                ll, zz, beta, phi = evolve_l_refraction( array_X, nn, dndr, r_planet, d_l_adjust )
                 list_l.append( ll )
                 list_z.append( zz )
                 l_max = ll
@@ -94,20 +144,18 @@ def refraction( layer_b, r_planet, dict_atmprof_funcZ, d_l ):
                 b_bottom_indx = ii
                 func_lofz = 0.
                 matrixB_deflect[ii] = -1
+
                 break
-            
-            ll   = ll_new
-            zz   = zz_new
-            beta = beta_new
-            phi  = phi_new
 
             list_l.append( ll )
             list_z.append( zz )
+            array_X = copy.deepcopy( array_X_new )
 
         if loop == LOOPMAX - 1 :
             util_errors.exit_msg('The ray is not fully traced. Increase LOOPMAX in ray_trace.py')
 
         listB_func_lofz.append( func_lofz )
+
 
     b_bottom_indx += 1
 
