@@ -23,7 +23,7 @@ def lower_resolution( grid_wl, matrixW_sp, resolution ):
     matrixW_dwl     = np.diff( matrixW_central )
     matrixW_sp_new  = np.dot( matrixW_convfunc, matrixW_sp * matrixW_dwl ) 
 
-    # FWHM > 0.5 * delta_wl ?
+    # FWHM > 0.1 * delta_wl ?
     grid_FWHM = grid_wl/resolution
     list_index = np.where( grid_FWHM[1:-1] < 0.5 * matrixW_dwl[1:-1] )[0]
     if len( list_index ) > 0 :
