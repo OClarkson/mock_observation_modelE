@@ -40,9 +40,6 @@ def read_lookuptable( xsfile, grid_wn, grid_P, grid_T ):
         indx_min = nearestindex_WN( grid_wn_org, grid_wn[0]  )
         indx_max = nearestindex_WN( grid_wn_org, grid_wn[-1] )
 
-#        grid_wn = grid_wn_org[indx_min:indx_max+1]
-#        if grid_wn
-#        del grid_wn_org
         grid_XS = grid_XS_org[indx_min:indx_max+1]
         del grid_XS_org
 
@@ -62,7 +59,6 @@ def read_lookuptable( xsfile, grid_wn, grid_P, grid_T ):
 #=============================================================================
 def griddata_line( list_mol, XSFILE_TAG, grid_wn, grid_T, grid_P, cnt_h2o_on=False ):
     
-
     # initialize the look-up table
     dict_griddata_logXSofWNTlogP = {}
     m_Tgrid, m_logPgrid = np.meshgrid( grid_T, np.log( grid_P ), indexing="ij" )
