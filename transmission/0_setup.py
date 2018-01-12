@@ -56,6 +56,9 @@ l_refraction     = True
 
 # Include molecular absorption ?
 l_molecular_absorption = True
+f_Wavenumber_min = 1000
+f_Wavenumber_max = 10000
+
 if l_molecular_absorption :
     # H2O continuum ?
     l_H2O_continuum = True     
@@ -63,8 +66,6 @@ if l_molecular_absorption :
 else :
     # Use user-defined wavenumber grids
     # (needed when gas absorption is not included
-    f_Wavenumber_min = 1000
-    f_Wavenumber_max = 10000
     i_Wavenumber_num = 100
 
 # Include Rayleigh scattering ?
