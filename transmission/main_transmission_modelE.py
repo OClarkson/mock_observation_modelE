@@ -187,19 +187,32 @@ if __name__ == "__main__":
         # Adjust wavenumber range
         # if the wavenumber range of the lookup table is narrower, 
         # the wavenumber range of the lookup table is adopted
-        tmp = np.load(  s_xsFile_Tag + list_mol[0] + ".npz" )
-        wn_min, wn_max, wn_num = tmp['WN'][0], tmp['WN'][-1], len(tmp['WN'])
+        for mol in list_mol :
+            xsfile_tmp = s_xsFile_Tag + mol + ".npz" 
+            if os.path.exists( xsfile_tmp ) : 
+                break
+        tmp = np.load( xsfile_tmp )
+
+        grid_wn_org = tmp['WN']
+        grid_T      = tmp['T']
+        grid_P      = tmp['P']*cgs.mbar_to_barye
+
+        indx_min = read_xs.nearestindex_WN( grid_wn_org, f_Wavenumber_min )
+        indx_max = read_xs.nearestindex_WN( grid_wn_org, f_Wavenumber_max  )
+        if indx_min < indx_max :
+            grid_wn  = grid_wn_org[indx_min:indx_max+1]
+        else :
+            util_errors.exit_msg( 'Specified wavenumber range is not valid---check the consistensy with the cross section table. ')
 
         # get gridded data of cross section from HITRAN
-        grid_wn, dict_griddata_logXSofWNTP = read_xs.griddata_line( list_mol, s_xsFile_Tag, ( wn_min, wn_max ), cnt_h2o_on=l_H2O_continuum )
+        dict_griddata_logXSofWNTP = read_xs.griddata_line( list_mol, s_xsFile_Tag, grid_wn, grid_T, grid_P, cnt_h2o_on=l_H2O_continuum )
 
-        if l_O3 and wn_max > 1.e4 : # shortward of wavelength=1um
-            dict_griddata_logXSofWNTP = read_xs.griddata_add_UV( 'O3', 'data/SerdyuchenkoGorshelevVersionJuly2013.dat', grid_wn, dict_griddata_logXSofWNTP )
-
+        if l_O3 and ( grid_wn[-1] > 1.e4 ) : # shortward of wavelength=1um
+            dict_griddata_logXSofWNTP = read_xs.griddata_add_UV( 'O3', 'data/SerdyuchenkoGorshelevVersionJuly2013.dat', grid_wn,  grid_T, grid_P, dict_griddata_logXSofWNTP )
 
     else :
 
-        grid_wn = np.linspace( WN_MIN, WN_MAX, WN_NUM )
+        grid_wn = np.linspace( f_Wavenumber_min, f_Wavenumber_max, i_Wavenumber_num )
         dict_griddata_logXSofWNTP = {}
         
     #---------------------------------------------------
@@ -210,7 +223,7 @@ if __name__ == "__main__":
     params = ( grid_wn, list_theta, list_dict_atmprof, dict_griddata_logXSofWNTP, DICT_NonCondensableGas, dict_geom )
     list_index = range( len( list_dict_atmprof ) )
     
-    if l_multicore :
+    if l_multicore and ( i_core_num <= len( list_index ) ) :
         matrixW_Ftransmit = call_multicore( list_index, params )
         matrixW_Ftransmit_total = np.sum( np.array( matrixW_Ftransmit ), axis=0 )
         
@@ -251,11 +264,14 @@ if __name__ == "__main__":
 
         # Lower resolution.
         if l_lower_resolution :
-            matrixW_Heff  = resolution.lower_resolution( grid_wl,  matrixW_Heff, f_resolution )
-            matrixW_dFppm = resolution.lower_resolution( grid_wl, matrixW_dFppm, f_resolution )
 
-            data  = np.c_[ grid_wl, matrixW_Heff, matrixW_dFppm ]
+            matrixW_wl, matrixW_Heff  = resolution.lower_resolution( grid_wl,  matrixW_Heff, f_resolution )
+            matrixW_wl, matrixW_dFppm = resolution.lower_resolution( grid_wl, matrixW_dFppm, f_resolution )
+
+            data  = np.c_[ matrixW_wl, matrixW_Heff, matrixW_dFppm ]
             np.savetxt( s_outFile_Dir + s_outFile_Tag + "/transit_Heff_depth_R"+str( int( f_resolution ) ), data, header=myheader )
+
+            grid_wl = matrixW_wl
 
         # Make a plot
         if l_Plot :
