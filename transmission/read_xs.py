@@ -3,6 +3,7 @@ import util_errors
 import cgs
 from molecules import *
 import pandas as pd
+import os
 from scipy import interpolate
 
 
@@ -16,51 +17,56 @@ def nearestindex_WN(WN_lattice, wn) :
 
 
 #=============================================================================
-def read_lookuptable( xsfile, wn_limit ):
+def read_lookuptable( xsfile, grid_wn, grid_P, grid_T ):
     """
     Extract Look-up Table
     """
 
     print "Reading " + xsfile + "...   "
 
-    data = np.load( xsfile )
 
-    PP_grid     = data['P']*cgs.mbar_to_barye
-    TT_grid     = data['T']
-    WN_grid_org = data['WN']
-    XS_grid_org = data['XS']
+    if os.path.exists( xsfile ) : # check if the file exists
 
-    #------------------------------------------------
-    # check wavenumber range
-    #------------------------------------------------
-    if ( ( wn_limit[0] < min( WN_grid_org ) ) or ( wn_limit[1] > max( WN_grid_org ) ) ) : 
-        util_errors.exit_msg("Wavenumbers set are out of range of look-up tables.")
-    #------------------------------------------------
+        data = np.load( xsfile )
 
-    indx_min = nearestindex_WN( WN_grid_org, wn_limit[0] )
-    indx_max = nearestindex_WN( WN_grid_org, wn_limit[1] )
+        grid_P_org = data['P']*cgs.mbar_to_barye
+        grid_T_org = data['T']
+        grid_wn_org = data['WN']
+        grid_XS_org = data['XS']
 
-    WN_grid = WN_grid_org[indx_min:indx_max+1]
-    del WN_grid_org
-    XS_grid = XS_grid_org[indx_min:indx_max+1]
-    del XS_grid_org
+        if not ( np.allclose( grid_P_org, grid_P ) and np.allclose( grid_T_org, grid_T ) ) :
+            util_errors.exit_msg("Grids on pressure or temperature are not consistent among cross section tables.")
 
-    #### TEST (to be eventually removed)
-    id1, id2, id3 = np.where(XS_grid <= 0)
-    for i1, i2, i3 in zip(id1, id2, id3) :
-        XS_grid[i1][i2][i3] = 1.e-48
-    #### TEST
+        indx_min = nearestindex_WN( grid_wn_org, grid_wn[0]  )
+        indx_max = nearestindex_WN( grid_wn_org, grid_wn[-1] )
 
-    return WN_grid, TT_grid, PP_grid, XS_grid
+#        grid_wn = grid_wn_org[indx_min:indx_max+1]
+#        if grid_wn
+#        del grid_wn_org
+        grid_XS = grid_XS_org[indx_min:indx_max+1]
+        del grid_XS_org
+
+        #### TEST (to be eventually removed)
+        id1, id2, id3 = np.where(grid_XS <= 0)
+        for i1, i2, i3 in zip(id1, id2, id3) :
+            grid_XS[i1][i2][i3] = 1.e-48
+        #### TEST
+
+    else :
+
+        grid_XS = np.zeros([ len( grid_wn ), len( grid_T ), len( grid_P ) ]) + 1.e-48
+
+    return grid_XS
 
 
 #=============================================================================
-def griddata_line( list_mol, XSFILE_TAG, wn_range, cnt_h2o_on=False ):
+def griddata_line( list_mol, XSFILE_TAG, grid_wn, grid_T, grid_P, cnt_h2o_on=False ):
+    
 
-    wn_min, wn_max = wn_range
-
-    # initialize cross section dictionary
+    # initialize the look-up table
     dict_griddata_logXSofWNTlogP = {}
+    m_Tgrid, m_logPgrid = np.meshgrid( grid_T, np.log( grid_P ), indexing="ij" )
+    dict_griddata_logXSofWNTlogP['coords'] = np.c_[ m_Tgrid.flatten(), m_logPgrid.flatten() ]
 
     # read lookup tables
     for molename in list_mol :
@@ -69,30 +75,25 @@ def griddata_line( list_mol, XSFILE_TAG, wn_range, cnt_h2o_on=False ):
 
             if molename == 'H2O' and cnt_h2o_on :
                 xsfile = XSFILE_TAG + "H2O_c25.npz"
-                WN_lookuptable, TT_lookuptable, PP_lookuptable, XS_lookuptable     = read_lookuptable(xsfile, (wn_min, wn_max))
+                XS_lookuptable     = read_lookuptable( xsfile, grid_wn, grid_P, grid_T )
                 xsfile = XSFILE_TAG + "H2O_cnt.npz"
-                WN_lookuptable, TT_lookuptable, PP_lookuptable, XS_lookuptable_cnt = read_lookuptable(xsfile, (wn_min, wn_max))
-                dict_griddata_logXSofWNTlogP[molename] = np.log( XS_lookuptable + XS_lookuptable_cnt ).reshape([ len( WN_lookuptable ), len( TT_lookuptable )*len( PP_lookuptable ) ])
+                XS_lookuptable_cnt = read_lookuptable( xsfile, grid_wn, grid_P, grid_T )
+                dict_griddata_logXSofWNTlogP[molename] = np.log( XS_lookuptable + XS_lookuptable_cnt ).reshape([ len( grid_wn ), len( grid_T )*len( grid_P ) ])
 
                 xsfile = XSFILE_TAG + "H2O-H2O_cnt.npz"
-                WN_lookuptable, TT_lookuptable, PP_lookuptable, XS_lookuptable_cnt2 = read_lookuptable(xsfile, (wn_min, wn_max))
-                dict_griddata_logXSofWNTlogP['H2O-H2O'] = np.log( XS_lookuptable_cnt2 ).reshape([ len( WN_lookuptable ), len( TT_lookuptable )*len( PP_lookuptable ) ])
+                XS_lookuptable_cnt2 = read_lookuptable( xsfile, grid_wn, grid_P, grid_T )
+                dict_griddata_logXSofWNTlogP['H2O-H2O'] = np.log( XS_lookuptable_cnt2 ).reshape([ len( grid_wn ), len( grid_T )*len( grid_P ) ])
 
             else :
                 xsfile = XSFILE_TAG + molename + ".npz"
-                WN_lookuptable, TT_lookuptable, PP_lookuptable, XS_lookuptable = read_lookuptable(xsfile, (wn_min, wn_max))
-                dict_griddata_logXSofWNTlogP[molename] = np.log( XS_lookuptable ).reshape([ len( WN_lookuptable ), len( TT_lookuptable )*len( PP_lookuptable ) ])
+                XS_lookuptable = read_lookuptable( xsfile, grid_wn, grid_P, grid_T )
+                dict_griddata_logXSofWNTlogP[molename] = np.log( XS_lookuptable ).reshape([ len( grid_wn ), len( grid_T )*len( grid_P ) ])
 
-
-    m_Tgrid, m_logPgrid = np.meshgrid( TT_lookuptable, np.log(PP_lookuptable), indexing="ij" )
-#    dict_griddata_logXSofWNTP['coords'] = np.c_[ m_WNgrid.flatten(), m_Tgrid.flatten(), m_logPgrid.flatten() ]
-    dict_griddata_logXSofWNTlogP['coords'] = np.c_[ m_Tgrid.flatten(), m_logPgrid.flatten() ]
-
-    return WN_lookuptable, dict_griddata_logXSofWNTlogP
+    return dict_griddata_logXSofWNTlogP
 
 
 #=============================================================================
-def griddata_add_UV( molename, filename, grid_wn, dict_griddata_logXSofWNTP ):
+def griddata_add_UV( molename, filename, grid_wn, grid_T, grid_P, dict_griddata_logXSofWNTP ):
 
     # read UV continuum absorption data
     print "Reading " + filename + " for " + molename + "...   "
@@ -117,15 +118,13 @@ def griddata_add_UV( molename, filename, grid_wn, dict_griddata_logXSofWNTP ):
     # dimension of dict_interpolate.griddata_logXSofWNTP['XS']
     #  WN x T x P
     # -------------------------------------------
-    grid_t = np.unique( dict_griddata_logXSofWNTP['coords'][:,0] )
-    grid_p = np.unique( dict_griddata_logXSofWNTP['coords'][:,1] )
-    mesh_wn, mesh_t = np.meshgrid( grid_wn, grid_t, indexing='ij' )
+    mesh_wn, mesh_t = np.meshgrid( grid_wn, grid_T, indexing='ij' )
     xi     = np.c_[ mesh_wn.flatten(), mesh_t.flatten() ]
 
     xi_logXS = interpolate.griddata( points, values, xi, method='nearest', fill_value=-48 )
 
-    mesh_logXS = xi_logXS.reshape( [ len( grid_wn ), len( grid_t ), 1 ] )
-    mesh_logXS = np.tile( mesh_logXS, len( grid_p ) ).reshape( [ len( grid_wn ), len( grid_t )*len( grid_p ) ] )
+    mesh_logXS = xi_logXS.reshape( [ len( grid_wn ), len( grid_T ), 1 ] )
+    mesh_logXS = np.tile( mesh_logXS, len( grid_P ) ).reshape( [ len( grid_wn ), len( grid_T )*len( grid_P ) ] )
     tmp = np.exp( dict_griddata_logXSofWNTP[molename] ) + np.exp( mesh_logXS )
     dict_griddata_logXSofWNTP[molename] = np.log( tmp )
 
