@@ -3,7 +3,7 @@ import util_errors
 import matplotlib.pyplot as plt
 
 #=======================================================================
-def plot_sp( outfile_head, dict_geom, grid_wn, matrixW_Heff, matrixW_dFppm ):
+def plot_sp( outfile_head, dict_geom, grid_wl, matrixW_Heff, matrixW_dFppm ):
 
     #-----------------------------------------------
     print 'Plotting transmission spectrum...'
@@ -14,11 +14,11 @@ def plot_sp( outfile_head, dict_geom, grid_wn, matrixW_Heff, matrixW_dFppm ):
 
     if y_unit[0] == 'Heff' :
         ax.set_ylabel('effective radius [km]')
-        ax.plot( 1e4/grid_wn, matrixW_Heff, color=linecolor )
+        ax.plot( grid_wl, matrixW_Heff, color=linecolor )
 
     elif y_unit[0] == 'ppm' :
         ax.set_ylabel('transit depth [ppm]')
-        ax.plot( 1e4/grid_wn, matrixW_dFppm, color=linecolor )
+        ax.plot( grid_wl, matrixW_dFppm, color=linecolor )
 
     if len( y_unit ) > 1 :
         ax2 = ax.twinx()
