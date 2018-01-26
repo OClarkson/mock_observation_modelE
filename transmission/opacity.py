@@ -73,6 +73,7 @@ def get_nXS_Rayleigh( layer_z, grid_wn, dict_NonCondensableGas, dict_atmprof_fun
     matrixZ_pres  = dict_atmprof_funcZ['plm'     ]( layer_z )
     matrixZ_temp  = dict_atmprof_funcZ['TempL'   ]( layer_z )
     matrixZ_xH2O  = dict_atmprof_funcZ['xH2O'    ]( layer_z )
+
     if l_O3 :
         matrixZ_xO3   = dict_atmprof_funcZ['xO3'     ]( layer_z )
     else :
@@ -102,8 +103,9 @@ def get_nXS_Rayleigh( layer_z, grid_wn, dict_NonCondensableGas, dict_atmprof_fun
                     
         matrixZ_refract = molecules[molename]['refractivity'] * ( matrixZ_n / cgs.NA ) / cgs.amagat
 
-        matrixZ_alpha  = ( 3. / ( 4. * np.pi * matrixZ_n )) * ( ( matrixZ_refract + 1. )**2 -1 ) / ( ( matrixZ_refract + 1. )**2 + 2 )
-        matrixWZ_nXS  += 128.0 * np.pi**5 / ( 3.0 * matrixWZ_wl**4 ) * matrixZ_n * matrixZ_alpha**2
+        nonzero_indx = np.where( matrixZ_n > 0. )[0]
+        matrixZ_alpha = ( 3. / ( 4. * np.pi * matrixZ_n[nonzero_indx] )) * ( ( matrixZ_refract[nonzero_indx] + 1. )**2 -1 ) / ( ( matrixZ_refract[nonzero_indx] + 1. )**2 + 2 )
+        matrixWZ_nXS[:,nonzero_indx]  += 128.0 * np.pi**5 / ( 3.0 * matrixWZ_wl[:,nonzero_indx]**4 ) * matrixZ_n[nonzero_indx] * matrixZ_alpha**2
 
     return matrixWZ_nXS
 
