@@ -33,7 +33,10 @@ def get_nXS_molabs( layer_z, grid_wn, dict_griddata_logXSofWNTP, dict_NonCondens
     def expand_wn( ii ):
 
         flat_logXS  = interpolate.griddata( dict_griddata_logXSofWNTP['coords'], dict_griddata_logXSofWNTP[molename][ii], flat_points, method='linear' ) 
-        return np.exp( flat_logXS )
+        flat_XS = np.exp( flat_logXS )
+        flat_XS[np.isnan( flat_XS )] = 0.
+        return flat_XS
+
     #-----------------------------------
 
     for molename in list_mol :
