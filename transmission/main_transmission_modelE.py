@@ -234,8 +234,6 @@ if __name__ == "__main__":
         for ii in list_index :
 #            matrixW_Ftransmit_total += call_transmission( ii, params )
             test = call_transmission( ii, params )
-            print "ii", ii
-            print test
             matrixW_Ftransmit_total += test
 
     Fstar = np.pi
