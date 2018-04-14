@@ -1,8 +1,8 @@
-import setup_plot 
 import util_errors
 import matplotlib 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import setup_plot 
 
 #=======================================================================
 def plot_sp( outfile_head, dict_geom, grid_wl, matrixW_Heff, matrixW_dFppm ):
