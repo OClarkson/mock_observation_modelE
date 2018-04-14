@@ -97,6 +97,7 @@ def griddata_add_UV( molename, filename, grid_wn, grid_T, grid_P, dict_griddata_
     table_T  = UVdata[0,1:].astype( np.float )
     table_WL = UVdata[1:,0].astype( np.float )
     table_WN = 1e7 / table_WL
+    table_XS[ np.where( table_XS <= 0 ) ] = 1.e-48
 
     # reverse 
     table_WN = table_WN[::-1]
