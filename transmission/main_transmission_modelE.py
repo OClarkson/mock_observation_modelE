@@ -10,7 +10,6 @@ import functools
 import datetime
 import sys
 import os
-import matplotlib.pyplot as plt
 from copy import deepcopy
 
 from setup import *
@@ -49,8 +48,10 @@ def call_transmission( position_index, params ):
         if (dict_atmprof['plm'][0] > p_lookuptable_max ):
             util_errors.exit_msg( 'P'+str(position_index)+': maximum pressure of atmosphere is larger than maximum pressure in lookuptable.')
         if ( dict_atmprof['plm'][-1] < p_lookuptable_min ):
-            util_errors.warning_longmsg( [ 'P'+str(position)+': minimum pressure of atmosphere is smaller than minimum pressure in lookuptable.' ,
-                                           '    Cross section above '+str(p_lookuptable_min/cgs.mbar_to_barye)+' will be ignored.' ] )
+            print 'Minimum pressure:', dict_atmprof['plm'][-1]/cgs.mbar_to_barye, "mbar"
+            util_errors.warning_longmsg( [ 'P'+str(position_index)+': minimum pressure of atmosphere is smaller than minimum pressure in lookuptable.' ,
+                                           '    Cross section above '+str(p_lookuptable_min/cgs.mbar_to_barye)+' mbar will be ignored.' ] )
+
 
     #------------------------------------------------
     # compute spectra
@@ -231,8 +232,11 @@ if __name__ == "__main__":
         grid_sp_serial = np.zeros( len( list_index ) )
         matrixW_Ftransmit_total = np.zeros( len( grid_wn ) )
         for ii in list_index :
-            matrixW_Ftransmit_total += call_transmission( ii, params )
-            
+#            matrixW_Ftransmit_total += call_transmission( ii, params )
+            test = call_transmission( ii, params )
+            print "ii", ii
+            print test
+            matrixW_Ftransmit_total += test
 
     Fstar = np.pi
     planet_shadow = np.pi * ( dict_geom['r_planet'] + f_Z_top )**2 / ( dict_geom['r_star']**2 )
