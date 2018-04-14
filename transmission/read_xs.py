@@ -2,7 +2,6 @@ import numpy as np
 import util_errors
 import cgs
 from molecules import *
-import pandas as pd
 import os
 from scipy import interpolate
 
@@ -93,10 +92,10 @@ def griddata_add_UV( molename, filename, grid_wn, grid_T, grid_P, dict_griddata_
 
     # read UV continuum absorption data
     print "Reading " + filename + " for " + molename + "...   "
-    UVdata   = pd.read_table( filename, comment='#' )
-    table_XS = UVdata.iloc[:,1:].as_matrix()
-    table_T  = UVdata.columns[1:].astype( float ) 
-    table_WL = UVdata.iloc[:,0].as_matrix()
+    UVdata = np.loadtxt( filename, dtype='string' )
+    table_XS = UVdata[1:,1:].astype( np.float )
+    table_T  = UVdata[0,1:].astype( np.float )
+    table_WL = UVdata[1:,0].astype( np.float )
     table_WN = 1e7 / table_WL
 
     # reverse 
