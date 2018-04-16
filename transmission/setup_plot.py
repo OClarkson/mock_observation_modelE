@@ -17,13 +17,18 @@ def sp( grid_wl, matrixW_Heff, matrixW_dFppm ):
     title = False
 
     # x axis
-    ax.set_xlim( [ grid_wl[0], np.min( grid_wl[-1], 10. ) ] ) # 
+    wl_max = np.minimum( grid_wl[-1], 10. )
+    ax.set_xlim( [ grid_wl[0], wl_max ] ) # 
     ax.set_xlabel( r'wavelength [$\mu $m]' )
 
+    # Uncomment the line below for logscale x-axis
+    # ax.set_xscale('log')
+    
     # y axis
     y_unit = [ 'Heff', 'ppm' ] 
     if y_unit[0] == 'Heff' :
-        y_range = [ 0., np.max( matrixW_Heff ) + 10. ]
+        Heff_max = np.max( matrixW_Heff[np.where( grid_wl < wl_max )] ) + 10. 
+        y_range = [ 0., Heff_max ]
     elif y_unit[0] == 'ppm' :
         dFppm_min = np.min( matrix_dFppm )
         dFppm_max = np.max( matrix_dFppm )
