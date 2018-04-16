@@ -17,7 +17,7 @@ def sp( grid_wl, matrixW_Heff, matrixW_dFppm ):
     title = False
 
     # x axis
-    ax.set_xlim( [ grid_wl[0], grid_wl[-1] ] ) # 
+    ax.set_xlim( [ grid_wl[0], np.min( grid_wl[-1], 10. ) ] ) # 
     ax.set_xlabel( r'wavelength [$\mu $m]' )
 
     # y axis
