@@ -2,6 +2,7 @@ import numpy as np
 import util_interp
 import sys
 import copy
+from scipy import optimize
 
 LOOPMAX = 100000
 
@@ -30,9 +31,9 @@ def RK4( list_dXds, array_X, ds ):
         array_k[3,ii] = list_dXds[ii]( array_X_3 )
 
     # step forward
-    array_X += ( array_k[0] + 2.*array_k[1] + 2.*array_k[2] + array_k[3] ) * ds / 6.
+    array_dX = ( array_k[0] + 2.*array_k[1] + 2.*array_k[2] + array_k[3] ) * ds / 6.
 
-    return array_X
+    return array_X + array_dX
 
 
 #=============================================================================
@@ -62,9 +63,9 @@ def evolve_l_refraction( array_X, nn, dndr, r_planet, d_l ):
         return np.cos( beta ) / ( r_planet + zz )
 
     list_dXds = [ ds_ds, dz_ds, dbeta_ds, dphi_ds ]
-    array_X   = RK4( list_dXds, array_X, d_l )
+    array_X_new   = RK4( list_dXds, array_X, d_l )
 
-    return array_X
+    return array_X_new
 
 
 #=============================================================================
