@@ -43,7 +43,7 @@ def get_labels( band, digit=0 ) :
 
 
 #=======================================================================
-def plot_sp( data_time, data_integrated, outfile_head, rfile, spectral_file, mode=False ):
+def plot_sp( data_time, data_integrated, outfile_head, rfile, spfile=False, mode=False ):
 
     #-----------------------------------------------
     print 'Plotting ' + str(mode.upper()) +' average spectra' 
@@ -52,7 +52,7 @@ def plot_sp( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
     data_sp     = np.nanmean( data_integrated, axis=0 )
     band_num    = len( data_sp )
 
-    band        = get_band( spectral_file, mode, band_num ) 
+    band        = get_band( spfile, mode, band_num ) 
     band_center = ( band[:,0] + band[:,1] ) * 0.5
     band_width  = ( band[:,1] - band[:,0] )
 
@@ -71,26 +71,28 @@ def plot_sp( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
 
 
 #=======================================================================
-def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mode=False, full_phase=True ):
+def plot_lc( data_time, data_integrated, outfile_head, rfile, spfile=False, mode=False, full_phase=True ):
 
     #-----------------------------------------------
     print 'Plotting ' + str(mode.upper()) +' lightcurves' 
     #-----------------------------------------------
 
     band_num    = len( data_integrated.T )
-    band        = get_band( spectral_file, mode, band_num ) 
 
-    band        = get_band( spectral_file, mode, band_num ) 
-    band_center = ( band[:,0] + band[:,1] ) * 0.5
-    band_width  = ( band[:,1] - band[:,0] )
+    if band_num > 1 :
+        band        = get_band( spfile, mode, band_num ) 
+        band_center = ( band[:,0] + band[:,1] ) * 0.5
+        band_width  = ( band[:,1] - band[:,0] )
 
     if mode=='SW' or mode=='sw' :
         fig, ax, colors = setup_plot.lc_sw( len( data_integrated.T ) )
-        labels  = get_labels( band, digit=2 )
+        if band_num > 1 :
+            labels  = get_labels( band, digit=2 )
     elif mode=='LW' or mode=='lw' :
         fig, ax, colors = setup_plot.lc_lw( len( data_integrated.T ) )
-        labels  = get_labels( band, digit=1 )
-        data_integrated = data_integrated / band_width # per micron
+        if band_num > 1 :
+            labels  = get_labels( band, digit=1 )
+            data_integrated = data_integrated / band_width # per micron
 
     if full_phase :
         ax.set_xlabel( 'orbital phase [rad]' )
@@ -98,18 +100,24 @@ def plot_lc( data_time, data_integrated, outfile_head, rfile, spectral_file, mod
 
     for jj in xrange( len( data_integrated.T ) ):
         if mode=='SW' or mode=='sw' :
-            ax.plot( data_time, data_integrated.T[jj], label=labels[jj], c=colors[jj] )
+            if band_num > 1 :
+                ax.plot( data_time, data_integrated.T[jj], label=labels[jj], c=colors[jj] )
+            else :
+                ax.plot( data_time, data_integrated.T[0], c=colors )
+
         elif mode=='LW' or mode=='lw' :
-            jj2 = len(data_integrated.T) - jj - 1
-            ax.plot( data_time, data_integrated.T[jj2], label=labels[jj2], c=colors[jj] )
-
-
+            if band_num > 1 :
+                jj2 = len(data_integrated.T) - jj - 1
+                ax.plot( data_time, data_integrated.T[jj2], label=labels[jj2], c=colors[jj] )
+            else :
+                ax.plot( data_time, data_integrated.T[0], c=colors )
     # legend
-    if mode=='SW' or mode=='sw' :
-        ax = setup_plot.lc_sw_legend( ax )
+    if band_num > 1 :
+        if mode=='SW' or mode=='sw' :
+            ax = setup_plot.lc_sw_legend( ax )
 
-    elif mode=='LW' or mode=='lw' :
-        ax = setup_plot.lc_lw_legend( ax )
+        elif mode=='LW' or mode=='lw' :
+            ax = setup_plot.lc_lw_legend( ax )
 
     plt.savefig( outfile_head+'/lc_'+mode+'.pdf', bbox_inches='tight' ) 
 
