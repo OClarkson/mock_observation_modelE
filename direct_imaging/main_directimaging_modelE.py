@@ -7,7 +7,6 @@ from copy import deepcopy
 
 from setup import *
 
-import io_nc
 import io_txt
 
 import geometry
@@ -143,6 +142,8 @@ if __name__ == "__main__":
 
             if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
                 array_data_sw = array_data_sw_1 * ( 1. - weight ) + array_data_sw_2 * weight
+                array_data_sw[ np.where( array_data_sw_1 == 0. )] = array_data_sw_2[ np.where( array_data_sw_1 == 0. )]
+                array_data_sw[ np.where( array_data_sw_2 == 0. )] = array_data_sw_1[ np.where( array_data_sw_2 == 0. )]
 
             if l_LongWave_LightCurve or l_LongWave_Spectrum :
                 array_data_lw = array_data_lw_1 * ( 1. - weight ) + array_data_lw_2 * weight
