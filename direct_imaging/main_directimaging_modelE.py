@@ -70,6 +70,7 @@ if __name__ == "__main__":
 
     oblqty_deg, p_spin_sec, p_orbit_sec = io_txt.extract_param( s_RFile, [ 'obliquity', 'siderealrotationperiod', 'siderealorbitalperiod' ], type='float' )
 
+
     if l_FullOrbit :
         f_PhaseAngle_Initial_deg = -180. 
         f_TimeLimit_hr           = p_orbit_sec * sec2hr
@@ -119,8 +120,6 @@ if __name__ == "__main__":
             month2 = month2 % 12
 
             if month1_old != month1 :
-                aijfile_month1 = s_aijFile_Dir + label_month[month1] + s_aijFile_Tag
-                aijfile_month2 = s_aijFile_Dir + label_month[month2] + s_aijFile_Tag
 
                 if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
                     if month1_old == -1 :
@@ -137,7 +136,7 @@ if __name__ == "__main__":
                         print 'Reading ', label_month[month1], 'data for LW'
                     else :
                         array_data_lw_1 = deepcopy( array_data_lw_2 )
-                    print 'Reading ', label_month[month1], 'data for LW'
+                    print 'Reading ', label_month[month2], 'data for LW'
                     nlat, nlon, array_lat, array_lon, array_data_lw_2 = read_nc( s_aijFile_Dir+label_month[month2]+s_aijFile_Tag, mode='lw' )
 
                 month1_old = month1
