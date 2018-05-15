@@ -110,9 +110,14 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
 
             # unit conversion
             dict_atmprof['plm']   = plm[:]*cgs.mbar_to_barye
+            dict_atmprof['plm'][np.where( dict_atmprof['plm'] > 1e6 )] = 1e6 - 1. # temporary
 
             # extrapolate
+            print ''
+            print 'theta:', theta
+            print 'before:', dict_atmprof['z'][-1]*1e-5, dict_atmprof['plm'][-1]/cgs.mbar_to_barye
             dict_atmprof = extrapolate_to_z_top( z_top, dict_atmprof, g_planet, param, mu_air_dry )
+            print ' after:', dict_atmprof['z'][-1]*1e-5, dict_atmprof['plm'][-1]/cgs.mbar_to_barye
 
             # input O3
             if l_O3 :
@@ -127,6 +132,7 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
             # density
             layer_mu_atm = 1./ ( ( 1. - dict_atmprof['q'] ) / mu_air_dry + dict_atmprof['q'] / constants.MU_H2O )
             dict_atmprof['rho'] = dict_atmprof['ndensity'] * layer_mu_atm
+
 
             # refractivity
             refrac_layers  = molecules['H2O']['refractivity'] * ( dict_atmprof['ndensity'] * dict_atmprof['xH2O'] ) / cgs.amagat 
@@ -154,7 +160,6 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
 
             # append
             list_dict_atmprof.append( dict_atmprof )
-
 
     return list_theta, list_dict_atmprof
 
