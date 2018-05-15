@@ -15,7 +15,7 @@ s_outFile_Tag = "us_standard"
 # 2. look-up tables
 #------------------------------------------------
 
-s_xsFile_Tag  = "xstbl/xstbl_HITRAN2012_00010-10000_m09991_"
+s_xsFile_Tag  = "xstbl/xstbl_HITRAN2012_00010-10000_m09991_c25_"
 
 #------------------------------------------------
 # 3. planetary system parameters (in cgs unit)
