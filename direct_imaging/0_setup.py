@@ -2,8 +2,8 @@
 # 1. input/output files
 #------------------------------------------------
 
-s_RFile        = "/Users/yuka/Dropbox/GCM_RUNS/RUNS/P1SoM40/P1SoM40.R"
-s_aijFile_Dir  = "/Users/yuka/Dropbox/GCM_RUNS/RUNS/P1SoM40/"
+s_RFile        = "/discover/nobackup/yfujii/GCM_RUNS/RUNS/P1SoM40/P1SoM40.R"
+s_aijFile_Dir  = "/discover/nobackup/yfujii/GCM_RUNS/RUNS/P1SoM40/"
 
 l_Monthly      = False
 s_aijFile_Tag  = "1901.aijP1SoM40.nc" # if l_Monthly=True, specify the common suffix of the aij files, leaving out JAN/FEB/MAR etc. 
@@ -11,8 +11,8 @@ s_aijFile_Tag  = "1901.aijP1SoM40.nc" # if l_Monthly=True, specify the common su
 
 l_Socrates     = True
 if l_Socrates :
-    s_SpectralFile_SW = 'spectral_files/sp_sw_ga7_dsa'
-    s_SpectralFile_LW = 'spectral_files/sp_lw_ga7_dsa'
+    s_SpectralFile_SW = '/discover/nobackup/projects/giss/spectral_files/sp_sw_ga7_dsa_sun'
+    s_SpectralFile_LW = '/discover/nobackup/projects/giss/spectral_files/sp_lw_ga7_dsa'
 
 s_outFile_Dir  = 'out/'
 s_outFile_Tag  = "1901.aijP1SoM40_lw300_PHASEeq270"
