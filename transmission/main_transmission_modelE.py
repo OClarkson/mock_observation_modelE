@@ -39,25 +39,10 @@ def call_transmission( position_index, params ):
     print 'Working on theta =', theta/np.pi*180.
 
     #------------------------------------------------
-    # check range of lookup table
-    #------------------------------------------------
-    if l_molecular_absorption :
-        p_lookuptable_min = np.exp( np.min( dict_griddata_logXSofWNTP['coords'][:,1] ) )
-        p_lookuptable_max = np.exp( np.max( dict_griddata_logXSofWNTP['coords'][:,1] ) )
-        t_lookuptable_min = np.min( dict_griddata_logXSofWNTP['coords'][:,0] )
-        if (dict_atmprof['plm'][0] > p_lookuptable_max ):
-            util_errors.exit_msg( 'P'+str(position_index)+': maximum pressure of atmosphere is larger than maximum pressure in lookuptable.')
-        if ( dict_atmprof['plm'][-1] < p_lookuptable_min ):
-            print 'Minimum pressure:', dict_atmprof['plm'][-1]/cgs.mbar_to_barye, "mbar"
-            util_errors.warning_longmsg( [ 'P'+str(position_index)+': minimum pressure of atmosphere is smaller than minimum pressure in lookuptable.' ,
-                                           '    Cross section above '+str(p_lookuptable_min/cgs.mbar_to_barye)+' mbar will be ignored.' ] )
-
-
-    #------------------------------------------------
     # compute spectra
     #------------------------------------------------
     matrixW_Ftransmit = transmission.raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXSofWNTP, DICT_NonCondensableGas, 
-                                                       f_Z_top, i_Z_num, i_B_num, f_dL, dict_geom, 
+                                                       dict_atmprof['z'][-1], i_Z_num, i_B_num, f_dL, dict_geom, 
                                                        flag_molabs=l_molecular_absorption, 
                                                        flag_rayleigh=l_Rayleigh, 
                                                        flag_cld=l_cloud )
@@ -131,48 +116,6 @@ if __name__ == "__main__":
 
 
     #------------------------------------------------
-    # input atmospheric profiles
-    #------------------------------------------------
-
-    if '.nc' in s_atmFile :
-        list_theta, list_dict_atmprof = read_aijl.extract_limbprof( s_atmFile, DICT_NonCondensableGas, f_Z_top, G_PLANET )
-    elif '.txt' in s_atmFile : 
-        list_theta, list_dict_atmprof = read_ascii.extract_prof( s_atmFile, DICT_NonCondensableGas, f_Z_top, G_PLANET )
-    else :
-        util_errors.exit_msg('Unknown format for DATAFILE. ')
-
-    if l_atm_average :
-
-        if not ( len( list_theta ) % i_atmave_num == 0 ) :
-            util_errors.exit_msg('Irrelevant i_atmave_num. ')
-
-        list_ave_dict_atmprof = []
-        list_ave_theta = []
-        jj = 0
-        for jj in xrange( len( list_dict_atmprof ) ):
-
-            if ( jj % i_atmave_num == 0 ) :
-                list_ave_theta.append( deepcopy( list_theta[jj] ) )
-                list_ave_dict_atmprof.append( deepcopy( list_dict_atmprof[jj] ) )
-            else :
-                list_ave_theta[-1] += list_theta[jj]
-                for key in list_dict_atmprof[0] :
-                    list_ave_dict_atmprof[-1][key] += list_dict_atmprof[jj][key]
-            if ( jj % i_atmave_num == i_atmave_num - 1 ) :
-                list_ave_theta[-1] = list_ave_theta[-1] / ( 1. * i_atmave_num )
-                for key in list_dict_atmprof[0] :
-                    list_ave_dict_atmprof[-1][key] = list_ave_dict_atmprof[-1][key] / ( 1. * i_atmave_num )
-                
-        list_dict_atmprof = deepcopy( list_ave_dict_atmprof )
-        list_theta        = deepcopy( list_ave_theta )
-
-
-    if not l_refraction :
-
-        for ii in xrange( len( list_dict_atmprof ) ):
-            list_dict_atmprof[ii]['dndr'] = np.zeros_like( list_dict_atmprof[0]['dndr'] )
-
-    #------------------------------------------------
     # Input cross section tables for gases.
     # Set wavenumber grid.
     #------------------------------------------------
@@ -211,10 +154,59 @@ if __name__ == "__main__":
         if l_O3 and ( grid_wn[-1] > 1.e4 ) : # shortward of wavelength=1um
             dict_griddata_logXSofWNTP = read_xs.griddata_add_UV( 'O3', 'data/SerdyuchenkoGorshelevVersionJuly2013.dat', grid_wn,  grid_T, grid_P, dict_griddata_logXSofWNTP )
 
+        p_lookuptable_min = np.exp( np.min( dict_griddata_logXSofWNTP['coords'][:,1] ) )
+        p_lookuptable_max = np.exp( np.max( dict_griddata_logXSofWNTP['coords'][:,1] ) )
+
+
     else :
 
         grid_wn = np.linspace( f_Wavenumber_min, f_Wavenumber_max, i_Wavenumber_num )
         dict_griddata_logXSofWNTP = {}
+
+        p_lookuptable_min = 1e-5*cgs.mbar_to_barye # temporary
+        p_lookuptable_max = 1e3*cgs.mbar_to_barye  # temporary
+
+    #------------------------------------------------
+    # input atmospheric profiles
+    #------------------------------------------------
+
+    if '.nc' in s_atmFile :
+        list_theta, list_dict_atmprof = read_aijl.extract_limbprof( s_atmFile, DICT_NonCondensableGas, p_lookuptable_min, p_lookuptable_max, G_PLANET )
+    elif '.txt' in s_atmFile : 
+        list_theta, list_dict_atmprof = read_ascii.extract_prof( s_atmFile, DICT_NonCondensableGas, p_lookuptable_min, p_lookuptable_max, G_PLANET )
+    else :
+        util_errors.exit_msg('Unknown format for s_atmFile. ')
+
+    if l_atm_average :
+
+        if not ( len( list_theta ) % i_atmave_num == 0 ) :
+            util_errors.exit_msg('Irrelevant i_atmave_num. ')
+
+        list_ave_dict_atmprof = []
+        list_ave_theta = []
+        jj = 0
+        for jj in xrange( len( list_dict_atmprof ) ):
+
+            if ( jj % i_atmave_num == 0 ) :
+                list_ave_theta.append( deepcopy( list_theta[jj] ) )
+                list_ave_dict_atmprof.append( deepcopy( list_dict_atmprof[jj] ) )
+            else :
+                list_ave_theta[-1] += list_theta[jj]
+                for key in list_dict_atmprof[0] :
+                    list_ave_dict_atmprof[-1][key] += list_dict_atmprof[jj][key]
+            if ( jj % i_atmave_num == i_atmave_num - 1 ) :
+                list_ave_theta[-1] = list_ave_theta[-1] / ( 1. * i_atmave_num )
+                for key in list_dict_atmprof[0] :
+                    list_ave_dict_atmprof[-1][key] = list_ave_dict_atmprof[-1][key] / ( 1. * i_atmave_num )
+                
+        list_dict_atmprof = deepcopy( list_ave_dict_atmprof )
+        list_theta        = deepcopy( list_ave_theta )
+
+    if not l_refraction :
+
+        for ii in xrange( len( list_dict_atmprof ) ):
+            list_dict_atmprof[ii]['dndr'] = np.zeros_like( list_dict_atmprof[0]['dndr'] )
+
         
     #---------------------------------------------------
     # MAIN PART. 
@@ -237,7 +229,9 @@ if __name__ == "__main__":
             matrixW_Ftransmit_total += test
 
     Fstar = np.pi
-    planet_shadow = np.pi * ( dict_geom['r_planet'] + f_Z_top )**2 / ( dict_geom['r_star']**2 )
+    planet_shadow = 0.
+    for ii in xrange( len( list_dict_atmprof ) ):
+        planet_shadow += np.pi * ( dict_geom['r_planet'] + list_dict_atmprof[ii]['z'][-1] )**2 / ( dict_geom['r_star']**2 ) / len( list_dict_atmprof )
     matrixW_Ftransit = Fstar - planet_shadow + matrixW_Ftransmit_total
 
     matrixW_dF    = Fstar - matrixW_Ftransit 

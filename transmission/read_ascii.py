@@ -13,7 +13,7 @@ import util_errors
 import sys
 
 #=============================================================================
-def extract_prof( infile, dict_NonCondensableGas, z_top, g_planet ) :
+def extract_prof( infile, dict_NonCondensableGas, p_min, p_max, g_planet ) :
 
     print "Reading " + infile + " for atmospheric profile...   "
 

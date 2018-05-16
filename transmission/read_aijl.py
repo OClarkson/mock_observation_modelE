@@ -13,7 +13,7 @@ import util_errors
 import sys
 
 #=============================================================================
-def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
+def extract_limbprof( infile, dict_NonCondensableGas, p_min, p_max, g_planet ) :
 
     print "Reading " + infile + " for atmospheric profile..."
 
@@ -110,10 +110,18 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
 
             # unit conversion
             dict_atmprof['plm']   = plm[:]*cgs.mbar_to_barye
-            dict_atmprof['plm'][np.where( dict_atmprof['plm'] > 1e6 )] = 1e6 - 1. # temporary
+            if ( dict_atmprof['plm'][0] > p_max ): 
+                util_errors.warning_longmsg( [ 'P' + str(position_index) 
+                                               + ': maximum pressure of atmosphere is larger than minimum pressure in lookuptable.' , 
+                                               'Pressure higher than' + str(p_max/cgs.mbar_to_barye) + 'bar is ignored.' ] )
+                dict_atmprof['plm'][np.where( dict_atmprof['plm'] > p_max )] = p_max
 
-            # extrapolate
-            dict_atmprof = extrapolate_to_z_top( z_top, dict_atmprof, g_planet, param, mu_air_dry )
+
+            # extrapolate or truncate to p_min
+            if ( dict_atmprof['plm'][-1] > p_min ):
+                dict_atmprof = extrapolate_to_p_min( p_min, dict_atmprof, g_planet, param, mu_air_dry )
+            else : 
+                dict_atmprof = truncate_to_p_min( p_min, dict_atmprof, param )
 
             # input O3
             if l_O3 :
@@ -161,7 +169,7 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
 
 
 #=============================================================================
-def extrapolate_to_z_top( z_top, dict_atmprof, g_planet, param, mu_air_dry, n_toplayer=10 ):
+def extrapolate_to_p_min( p_min, dict_atmprof, g_planet, param, mu_air_dry, n_toplayer=10 ):
 
     z_max      = dict_atmprof[   'z'][-1]
     q_max      = dict_atmprof[   'q'][-1]
@@ -170,8 +178,8 @@ def extrapolate_to_z_top( z_top, dict_atmprof, g_planet, param, mu_air_dry, n_to
 
     # additional layers for pressure
     scale_height_max = ( cgs.RR * dict_atmprof['TempL'][-1] ) / ( g_planet * mu_atm_max )
-    plm_top       = plm_max * np.exp( - ( z_top - z_max ) / scale_height_max )
-    plm_toplayers = np.logspace( np.log10( plm_max ), np.log10( plm_top ), n_toplayer+1  )[1:]
+    plm_toplayers    = np.logspace( np.log10( plm_max ), np.log10( p_min ), n_toplayer+1  )[1:]
+
     dict_atmprof['plm'] = np.r_[ dict_atmprof['plm'], plm_toplayers ]
 
     # additional layers for other parameters
@@ -186,6 +194,16 @@ def extrapolate_to_z_top( z_top, dict_atmprof, g_planet, param, mu_air_dry, n_to
         else :
             add_toplayers     = np.tile( dict_atmprof[key][-1], n_toplayer )
             dict_atmprof[key] = np.r_[ dict_atmprof[key], add_toplayers ]
+
+    return dict_atmprof
+
+
+
+#=============================================================================
+def truncate_to_p_min( p_min, dict_atmprof, param ):
+
+    for key in param :
+        dict_atmprof[key] = dict_atmprof[key][np.where( dict_atmprof['plm'] > p_min )]
 
     return dict_atmprof
 
