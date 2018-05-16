@@ -87,6 +87,8 @@ if l_lower_resolution :
 
 # Plot ?
 l_Plot = True
+if l_Plot :
+    s_fig_format='eps' 
 
 #------------------------------------------------
 # 5. computational parameters

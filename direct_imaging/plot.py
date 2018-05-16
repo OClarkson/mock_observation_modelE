@@ -1,3 +1,4 @@
+from setup import s_fig_format
 import numpy as np
 import matplotlib 
 matplotlib.use('Agg')
@@ -66,7 +67,7 @@ def plot_sp( data_time, data_integrated, outfile_head, rfile, spfile=False, mode
         data_sp     = data_sp / band_width # per micron
 
     ax.plot( band_center, data_sp, color='k' )
-    plt.savefig( outfile_head+'/sp_'+mode+'.pdf', bbox_inches='tight' ) 
+    plt.savefig( outfile_head+'/sp_'+mode+'.'+s_fig_format, bbox_inches='tight' ) 
 
     data = np.c_[ band_center, data_sp ]
     np.savetxt( outfile_head+'/sp_'+mode+'.txt', data, header='wl\tsp' )
@@ -121,7 +122,7 @@ def plot_lc( data_time, data_integrated, outfile_head, rfile, spfile=False, mode
         elif mode=='LW' or mode=='lw' :
             ax = setup_plot.lc_lw_legend( ax )
 
-    plt.savefig( outfile_head+'/lc_'+mode+'.pdf', bbox_inches='tight' ) 
+    plt.savefig( outfile_head+'/lc_'+mode+'.'+s_fig_format, bbox_inches='tight' ) 
 
     data_time = np.array( data_time )
     data = np.c_[ data_time, data_integrated ]

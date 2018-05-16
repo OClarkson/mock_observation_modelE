@@ -33,6 +33,8 @@ l_ShortWave_LightCurve = True # shortwave, lightcurve
 l_ShortWave_Spectrum   = True # shortwave, spectrum
 l_LongWave_LightCurve  = True # longwave,  lightcurve
 l_LongWave_Spectrum    = True # longwave,  spectrum
+s_fig_format           = 'eps'
+
 
 l_FullOrbit = True
 if l_FullOrbit : 

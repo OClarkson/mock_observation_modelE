@@ -1,3 +1,4 @@
+from setup import s_fig_format
 import util_errors
 import matplotlib 
 matplotlib.use('Agg')
@@ -24,7 +25,7 @@ def plot_sp( outfile_head, dict_geom, grid_wl, matrixW_Heff, matrixW_dFppm ):
 
     if len( y_unit ) > 1 :
         ax2 = ax.twinx()
-        outfile = outfile_head + '/sp_' + y_unit[0] + '_' + y_unit[1] + '.pdf'
+        outfile = outfile_head + '/sp_' + y_unit[0] + '_' + y_unit[1] + '.' + s_fig_format
         if y_unit[0] == 'Heff' and y_unit[1] == 'ppm' :
             ax2.set_ylabel('transit depth [ppm]')
             ppm_min = ( dict_geom['r_planet'] + y_range[0]*1e5 )**2 / ( dict_geom['r_star']**2 ) * 1e6
@@ -41,7 +42,7 @@ def plot_sp( outfile_head, dict_geom, grid_wl, matrixW_Heff, matrixW_dFppm ):
             util_errors.exit_msg( 'Inappropriate unit for y-axis.' )
 
     else :
-        outfile = outfile_head + '/sp_' + y_unit[0] + '.pdf'
+        outfile = outfile_head + '/sp_' + y_unit[0] + '.' + s_fig_format
 
     if title :
         plt.title( title )
