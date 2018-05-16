@@ -98,9 +98,6 @@ if l_Plot :
 #   f_dL is smaller
 #------------------------------------------------
 
-# altitude of top of atmosphere
-f_Z_top = 100.0e5 # cm
-
 # grid point for integration
 i_Z_num = 100
 
