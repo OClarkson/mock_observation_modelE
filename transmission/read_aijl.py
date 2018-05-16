@@ -113,11 +113,7 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
             dict_atmprof['plm'][np.where( dict_atmprof['plm'] > 1e6 )] = 1e6 - 1. # temporary
 
             # extrapolate
-            print ''
-            print 'theta:', theta
-            print 'before:', dict_atmprof['z'][-1]*1e-5, dict_atmprof['plm'][-1]/cgs.mbar_to_barye
             dict_atmprof = extrapolate_to_z_top( z_top, dict_atmprof, g_planet, param, mu_air_dry )
-            print ' after:', dict_atmprof['z'][-1]*1e-5, dict_atmprof['plm'][-1]/cgs.mbar_to_barye
 
             # input O3
             if l_O3 :
