@@ -1,3 +1,8 @@
+----------------------------------------------------------------------
+Detailed instruction is found at
+https://docs.google.com/document/d/1Kre_HT586XlsodNkeHejTEwYZPQ6cbAs0t9BXU0G054/edit?usp=sharing
+----------------------------------------------------------------------
+
 [0] Requirements
 
  - Python
@@ -16,9 +21,9 @@
 
 [2] Prepare data files
 
-    Make sure your data file exists at DATAFILE. 
-    Make sure your cross-section data files exist at XSFILE_TAG. 
-
+    Make sure your data file exists at s_atmFile. 
+    Make sure your cross-section data files exist at s_xsFile_Tag. 
+    Make sure the output directory s_outFile_Dir has been created. 
 
 [3] Prepare cross-section table
 
@@ -41,8 +46,8 @@
 
     The results are:
 
-        out/(OUTFILE_TAG)/transit_Heff_depth --- original resolution
-        out/(OUTFILE_TAG)/transit_Heff_depth_R(resolution) --- specified resolution
+        out/(s_outFile_Tag)/transit_Heff_depth --- original resolution
+        out/(s_outFile_Tag)/transit_Heff_depth_R(resolution) --- specified resolution
 
     1st column: wavelength       [um]
     2nd column: effective height [km]

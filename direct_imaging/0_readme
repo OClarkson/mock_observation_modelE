@@ -1,3 +1,8 @@
+----------------------------------------------------------------------
+Detailed instruction is found at
+https://docs.google.com/document/d/1Kre_HT586XlsodNkeHejTEwYZPQ6cbAs0t9BXU0G054/edit?usp=sharing
+----------------------------------------------------------------------
+
 [0] Requirements
 
  - Python
@@ -16,8 +21,9 @@
 
 [2] Prepare data files
 
-    Make sure your aij data file exists at DATAFILE_DIR/XXXDATAFILE_TAG, 
-    .R file at RFILE, and the consistent spectral file at SPECTRAL_FILE. 
+    Make sure your aij data file exists at s_aijFile_Dir/*s_aijFile_Tag, 
+    .R file at s_RFile, and the consistent spectral file at s_SpectralFile_SW
+    and s_SpectralFile_LW. 
 
 
 [3] Execute
