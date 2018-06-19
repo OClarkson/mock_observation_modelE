@@ -177,7 +177,7 @@ if __name__ == "__main__":
     else :
         util_errors.exit_msg('Unknown format for s_atmFile. ')
 
-    if l_atm_average :
+    if l_atm_average and ( '.nc' in s_atmFile ) :
 
         if not ( len( list_theta ) % i_atmave_num == 0 ) :
             util_errors.exit_msg('Irrelevant i_atmave_num. ')
