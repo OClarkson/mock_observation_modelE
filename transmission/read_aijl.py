@@ -110,12 +110,10 @@ def extract_limbprof( infile, dict_NonCondensableGas, p_min, p_max, g_planet ) :
 
             # unit conversion
             dict_atmprof['plm']   = plm[:]*cgs.mbar_to_barye
-            if ( dict_atmprof['plm'][0] > p_max ): 
-                util_errors.warning_longmsg( [ 'P' + str(position_index) 
-                                               + ': maximum pressure of atmosphere is larger than minimum pressure in lookuptable.' , 
-                                               'Pressure higher than' + str(p_max/cgs.mbar_to_barye) + 'bar is ignored.' ] )
-                dict_atmprof['plm'][np.where( dict_atmprof['plm'] > p_max )] = p_max
-
+            # if ( dict_atmprof['plm'][0] > p_max ): 
+            #     util_errors.warning_longmsg( [ 'Maximum pressure of atmosphere is larger than minimum pressure in lookuptable.' , 
+            #                                    'Pressure higher than ' + str(p_max/cgs.mbar_to_barye) + 'bar is ignored.' ] )
+            #     dict_atmprof['plm'][np.where( dict_atmprof['plm'] > p_max )] = p_max
 
             # extrapolate or truncate to p_min
             if ( dict_atmprof['plm'][-1] > p_min ):
@@ -137,12 +135,10 @@ def extract_limbprof( infile, dict_NonCondensableGas, p_min, p_max, g_planet ) :
             layer_mu_atm = 1./ ( ( 1. - dict_atmprof['q'] ) / mu_air_dry + dict_atmprof['q'] / constants.MU_H2O )
             dict_atmprof['rho'] = dict_atmprof['ndensity'] * layer_mu_atm
 
-
             # refractivity
             refrac_layers  = molecules['H2O']['refractivity'] * ( dict_atmprof['ndensity'] * dict_atmprof['xH2O'] ) / cgs.amagat 
             if l_O3 :
                 refrac_layers  = molecules['O3']['refractivity']  * ( dict_atmprof['ndensity'] * dict_atmprof['xO3'] ) / cgs.amagat 
-
 
             sum_layers     = deepcopy( dict_atmprof['xH2O'] )
             for molename in dict_NonCondensableGas :

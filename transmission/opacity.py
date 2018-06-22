@@ -16,6 +16,12 @@ if l_cloud :
 def get_nXS_molabs( layer_z, grid_wn, dict_griddata_logXSofWNTP, dict_NonCondensableGas, dict_atmprof_funcZ ) :
 
     matrixZ_pres = dict_atmprof_funcZ['plm'  ]( layer_z )
+
+    #----temporary fix----
+    max_pres_in_xstbl = np.exp( np.max( dict_griddata_logXSofWNTP['coords'][:,1] ) )
+    matrixZ_pres[ np.where( matrixZ_pres > max_pres_in_xstbl ) ] == max_pres_in_xstbl
+    #----temporary fix----
+
     matrixZ_temp = dict_atmprof_funcZ['TempL']( layer_z )
     matrixZ_xH2O = dict_atmprof_funcZ['xH2O' ]( layer_z )
     if l_O3 :
