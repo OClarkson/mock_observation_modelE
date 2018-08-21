@@ -20,6 +20,7 @@ def extract_prof( infile, dict_NonCondensableGas, p_min, p_max, g_planet ) :
     # molecular weight of dry air
     mu_air_dry = 0.
     sum        = 0.
+    weight_otherwise = 0.
     for molename in dict_NonCondensableGas :
         if dict_NonCondensableGas[molename]=='otherwise' :
             weight_otherwise = molecules[molename]['weight']
@@ -58,8 +59,8 @@ def extract_prof( infile, dict_NonCondensableGas, p_min, p_max, g_planet ) :
     # refractivity
     refrac_layers  = molecules['H2O']['refractivity'] * ( dict_atmprof['ndensity'] * dict_atmprof['xH2O'] ) / cgs.amagat 
 
-
     sum_layers     = deepcopy( dict_atmprof['xH2O'] )
+    refrac_otherwise = 0.
     for molename in dict_NonCondensableGas :
         if dict_NonCondensableGas[molename]=='otherwise' :
             refrac_otherwise = molecules[molename]['refractivity']

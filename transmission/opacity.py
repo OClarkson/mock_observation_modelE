@@ -1,4 +1,4 @@
-import numpy  as np
+import numpy as np
 from scipy import interpolate
 import cgs
 import sys
@@ -61,7 +61,13 @@ def get_nXS_molabs( layer_z, grid_wn, dict_griddata_logXSofWNTP, dict_NonCondens
             elif molename == 'O3' :
                 matrixZ_n = dict_atmprof_funcZ['ndensity']( layer_z ) * cgs.NA * matrixZ_xO3
             else :
-                matrixZ_n = dict_atmprof_funcZ['ndensity']( layer_z ) * cgs.NA * ( 1. - matrixZ_xH2O - matrixZ_xO3 ) * dict_NonCondensableGas[molename]
+                if dict_NonCondensableGas[molename] == 'otherwise' :
+                    tmp_NonCondensableGas = deepcopy( dict_NonCondensableGas )
+                    tmp_NonCondensableGas[molename] = 0.
+                    sum_mixingratio = sum( tmp_NonCondensableGas.values() )
+                    matrixZ_n = dict_atmprof_funcZ['ndensity']( layer_z ) * cgs.NA * ( 1. - matrixZ_xH2O - matrixZ_xO3 ) * ( 1. - sum_mixingratio )
+                else :
+                    matrixZ_n = dict_atmprof_funcZ['ndensity']( layer_z ) * cgs.NA * ( 1. - matrixZ_xH2O - matrixZ_xO3 ) * dict_NonCondensableGas[molename]
 
             matrixWZ_nXS_each = matrixWZ_XS * matrixZ_n 
             matrixWZ_nXS     += matrixWZ_nXS_each
