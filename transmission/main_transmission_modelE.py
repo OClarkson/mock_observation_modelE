@@ -128,20 +128,24 @@ if __name__ == "__main__":
         else :
             list_mol = [ 'H2O' ] + DICT_NonCondensableGas.keys()
 
-        # Adjust wavenumber range
-        # if the wavenumber range of the lookup table is narrower, 
-        # the wavenumber range of the lookup table is adopted
         flag = 0
         for mol in list_mol :
 
-            xsfile_tmp = s_xsFile_Tag + mol + ".npz" 
-            if os.path.exists( xsfile_tmp ) : 
-                flag = 1
-                break
+            if molecules[mol]['radiative'] :
+                xsfile_tmp = s_xsFile_Tag + mol + ".npz" 
+                if os.path.exists( xsfile_tmp ) : 
+                    flag = 1
+                    break
 
         if flag == 0 :
+
+            util_errors.warning_longmsg( [ 'No molecular absorption data found.', 
+                                           'Assuming 10 cm^-1 resolution. '  ] )
+            grid_wn = np.linspace( f_Wavenumber_min, f_Wavenumber_max,  int( (f_Wavenumber_max-f_Wavenumber_min)/10. ) )
+            dict_griddata_logXSofWNTP = {}
             
-            util_errors.exit_msg( 'No molecular absorption data. If this is real, go to setup.py and set l_molecular_absorption=False and i_Wavenumber_num. ')
+            p_lookuptable_min = 1e-5*cgs.mbar_to_barye # temporary
+            p_lookuptable_max = 1e4*cgs.mbar_to_barye  # temporary
 
         else :
 
@@ -151,6 +155,9 @@ if __name__ == "__main__":
             grid_T      = tmp['T']
             grid_P      = tmp['P']*cgs.mbar_to_barye
 
+            # Adjust wavenumber range
+            # if the wavenumber range of the lookup table is narrower, 
+            # the wavenumber range of the lookup table is adopted
             indx_min = read_xs.nearestindex_WN( grid_wn_org, f_Wavenumber_min )
             indx_max = read_xs.nearestindex_WN( grid_wn_org, f_Wavenumber_max  )
             if indx_min < indx_max :
@@ -162,7 +169,8 @@ if __name__ == "__main__":
             dict_griddata_logXSofWNTP = read_xs.griddata_line( list_mol, s_xsFile_Tag, grid_wn, grid_T, grid_P, cnt_h2o_on=l_H2O_continuum )
 
             if l_O3 and ( grid_wn[-1] > 1.e4 ) : # shortward of wavelength=1um
-                dict_griddata_logXSofWNTP = read_xs.griddata_add_UV( 'O3', 'data/SerdyuchenkoGorshelevVersionJuly2013.dat', grid_wn,  grid_T, grid_P, dict_griddata_logXSofWNTP )
+                if molecules['O3']['radiative'] :
+                    dict_griddata_logXSofWNTP = read_xs.griddata_add_UV( 'O3', 'data/SerdyuchenkoGorshelevVersionJuly2013.dat', grid_wn,  grid_T, grid_P, dict_griddata_logXSofWNTP )
 
             p_lookuptable_min = np.exp( np.min( dict_griddata_logXSofWNTP['coords'][:,1] ) )
             p_lookuptable_max = np.exp( np.max( dict_griddata_logXSofWNTP['coords'][:,1] ) )
@@ -174,7 +182,7 @@ if __name__ == "__main__":
         dict_griddata_logXSofWNTP = {}
 
         p_lookuptable_min = 1e-5*cgs.mbar_to_barye # temporary
-        p_lookuptable_max = 1e3*cgs.mbar_to_barye  # temporary
+        p_lookuptable_max = 1e4*cgs.mbar_to_barye  # temporary
 
     #------------------------------------------------
     # input atmospheric profiles

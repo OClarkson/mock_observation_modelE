@@ -42,15 +42,15 @@ def raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXS
 
     b_bottom_indx, matrixB_z_min, matrixB_deflect, listB_func_lofz = ray_trace.refraction( layer_b, dict_geom['r_planet'], dict_atmprof_funcZ, d_l )
 
-
     # check the maximum pressure
-    max_pres_probed = dict_atmprof_funcZ['plm']( matrixB_z_min[b_bottom_indx] )
-    max_pres_in_xstbl = np.exp( np.max( dict_griddata_logXSofWNTP['coords'][:,1] ) )
-    print 'max_pres_probed', max_pres_probed/cgs.mbar_to_barye
-    print 'max_pres_in_xstbl', max_pres_in_xstbl/cgs.mbar_to_barye
-    if ( max_pres_probed > max_pres_in_xstbl ) :
-        util_errors.warning_longmsg( [ 'Maximum atmospheric pressure probed is larger than maximum pressure in lookuptable.' , 
-                                       'Pressure higher than ' + str( max_pres_in_xstbl/cgs.mbar_to_barye ) + ' mbar is ignored.' ] )
+    if len( dict_griddata_logXSofWNTP ) > 0 : 
+        max_pres_probed = dict_atmprof_funcZ['plm']( matrixB_z_min[b_bottom_indx] )
+        max_pres_in_xstbl = np.exp( np.max( dict_griddata_logXSofWNTP['coords'][:,1] ) )
+        print 'max_pres_probed', max_pres_probed/cgs.mbar_to_barye
+        print 'max_pres_in_xstbl', max_pres_in_xstbl/cgs.mbar_to_barye
+        if ( max_pres_probed > max_pres_in_xstbl ) :
+            util_errors.warning_longmsg( [ 'Maximum atmospheric pressure probed is larger than maximum pressure in lookuptable.' , 
+                                           'Pressure higher than ' + str( max_pres_in_xstbl/cgs.mbar_to_barye ) + ' mbar is ignored.' ] )
 
     matrixB_area = np.zeros( b_num )
     matrixB_area[b_bottom_indx:] = projection.area_on_stellardisk( theta, d_theta, layer_b[b_bottom_indx:], matrixB_deflect[b_bottom_indx:], dict_geom ) 
@@ -58,7 +58,7 @@ def raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXS
 
     # opacity
     matrixWZ_nXS = np.zeros( [ len( grid_wn ), z_num ] )
-    if flag_molabs :
+    if flag_molabs and ( len( dict_griddata_logXSofWNTP ) > 0 ) :
         matrixWZ_nXS += opacity.get_nXS_molabs( layer_z, grid_wn, dict_griddata_logXSofWNTP, dict_NonCondensableGas, dict_atmprof_funcZ )
     if flag_rayleigh :
         matrixWZ_nXS += opacity.get_nXS_Rayleigh( layer_z, grid_wn, dict_NonCondensableGas, dict_atmprof_funcZ )
