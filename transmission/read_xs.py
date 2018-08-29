@@ -50,7 +50,6 @@ def read_lookuptable( xsfile, grid_wn, grid_P, grid_T ):
     else :
 
         print "Reading " + xsfile + "...NOT FOUND. NO OPACITY ASSUMED. "
-
         grid_XS = np.zeros([ len( grid_wn ), len( grid_T ), len( grid_P ) ]) + 1.e-48
 
     return grid_XS
