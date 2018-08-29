@@ -139,7 +139,7 @@ if __name__ == "__main__":
 
         if flag == 0 :
 
-            util_errors.warning_longmsg( [ 'No molecular absorption data found.', 
+            util_errors.warning_longmsg( [ 'No relevant molecular absorption data found.', 
                                            'Assuming 10 cm^-1 resolution. '  ] )
             grid_wn = np.linspace( f_Wavenumber_min, f_Wavenumber_max,  int( (f_Wavenumber_max-f_Wavenumber_min)/10. ) )
             dict_griddata_logXSofWNTP = {}
