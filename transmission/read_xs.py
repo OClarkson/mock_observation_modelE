@@ -21,10 +21,9 @@ def read_lookuptable( xsfile, grid_wn, grid_P, grid_T ):
     Extract Look-up Table
     """
 
-    print "Reading " + xsfile + "...   "
-
-
     if os.path.exists( xsfile ) : # check if the file exists
+
+        print "Reading " + xsfile + "..."
 
         data = np.load( xsfile )
 
@@ -50,6 +49,7 @@ def read_lookuptable( xsfile, grid_wn, grid_P, grid_T ):
 
     else :
 
+        print "Reading " + xsfile + "...NOT FOUND. SKIP! "
         grid_XS = np.zeros([ len( grid_wn ), len( grid_T ), len( grid_P ) ]) + 1.e-48
 
     return grid_XS
