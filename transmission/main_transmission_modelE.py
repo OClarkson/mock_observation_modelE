@@ -36,7 +36,7 @@ def call_transmission( position_index, params ):
     d_theta      = 2. * np.pi / ( len( list_theta ) )
     dict_atmprof = list_dict_atmprof[ position_index ]
 
-    print 'Working on theta =', theta/np.pi*180.
+    print('Working on theta =', theta/np.pi*180.)
 
     #------------------------------------------------
     # compute spectra
@@ -71,24 +71,24 @@ if __name__ == "__main__":
     # initialization 
     #------------------------------------------------
 
-    print ''
+    print('')
     now = datetime.datetime.now()
-    print now.strftime("%Y-%m-%d %H:%M:%S")
+    print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
     if not l_Debug :
 
         # Create directory
         out_dir = s_outFile_Dir + s_outFile_Tag + "/"
         if os.path.exists( out_dir ):
-            print out_dir+" already exists. Overwrite? [y/n] ...", 
-            answer = raw_input()
+            print(out_dir+" already exists. Overwrite? [y/n] ...", end=' ') 
+            answer = input()
             if answer=='n'  :
                 sys.exit()
             elif not answer=='y' :
                 util_errors.exit_msg('Unknown answer')
         else :
             os.mkdir( out_dir )
-            print "Created directory:", out_dir
+            print("Created directory:", out_dir)
 
         # Save THIS file and the setup file for reproducibility
         # ( This idea comes from Jacob )
@@ -96,7 +96,7 @@ if __name__ == "__main__":
         setupfile = "setup.py"
         os.system( "cp " + thisfile  + ' ' + out_dir + thisfile  )
         os.system( "cp " + setupfile + ' ' + out_dir + setupfile )
-        print "Saved :", thisfile, " &", setupfile
+        print("Saved :", thisfile, " &", setupfile)
 
         # Save start time
         filename_log = s_outFile_Dir + s_outFile_Tag + "/time.log"
@@ -124,9 +124,9 @@ if __name__ == "__main__":
 
         # list of molecules
         if l_O3 :
-            list_mol = [ 'H2O', 'O3' ] + DICT_NonCondensableGas.keys()
+            list_mol = [ 'H2O', 'O3' ] + list(DICT_NonCondensableGas.keys())
         else :
-            list_mol = [ 'H2O' ] + DICT_NonCondensableGas.keys()
+            list_mol = [ 'H2O' ] + list(DICT_NonCondensableGas.keys())
 
         flag = 0
         for mol in list_mol :
@@ -203,7 +203,7 @@ if __name__ == "__main__":
         list_ave_dict_atmprof = []
         list_ave_theta = []
         jj = 0
-        for jj in xrange( len( list_dict_atmprof ) ):
+        for jj in range( len( list_dict_atmprof ) ):
 
             if ( jj % i_atmave_num == 0 ) :
                 list_ave_theta.append( deepcopy( list_theta[jj] ) )
@@ -222,7 +222,7 @@ if __name__ == "__main__":
 
     if not l_refraction :
 
-        for ii in xrange( len( list_dict_atmprof ) ):
+        for ii in range( len( list_dict_atmprof ) ):
             list_dict_atmprof[ii]['dndr'] = np.zeros_like( list_dict_atmprof[0]['dndr'] )
 
         
@@ -232,7 +232,7 @@ if __name__ == "__main__":
     #---------------------------------------------------
 
     params = ( grid_wn, list_theta, list_dict_atmprof, dict_griddata_logXSofWNTP, DICT_NonCondensableGas, dict_geom )
-    list_index = range( len( list_dict_atmprof ) )
+    list_index = list(range( len( list_dict_atmprof )))
     
     if l_multicore and ( i_core_num <= len( list_index ) ) :
         matrixW_Ftransmit = call_multicore( list_index, params )
@@ -248,7 +248,7 @@ if __name__ == "__main__":
 
     Fstar = np.pi
     planet_shadow = 0.
-    for ii in xrange( len( list_dict_atmprof ) ):
+    for ii in range( len( list_dict_atmprof ) ):
         planet_shadow += np.pi * ( dict_geom['r_planet'] + list_dict_atmprof[ii]['z'][-1] )**2 / ( dict_geom['r_star']**2 ) / len( list_dict_atmprof )
     matrixW_Ftransit = Fstar - planet_shadow + matrixW_Ftransmit_total
 
@@ -296,8 +296,8 @@ if __name__ == "__main__":
     #------------------------------------------------
     # Save end time
     now = datetime.datetime.now()
-    print now.strftime("%Y-%m-%d %H:%M:%S")
-    print ''
+    print(now.strftime("%Y-%m-%d %H:%M:%S"))
+    print('')
 
     if not l_Debug :
 

@@ -9,7 +9,7 @@ def sp( grid_wl, matrixW_Heff, matrixW_dFppm ):
     # figure size
     fig, ax = plt.subplots(1,1,figsize=(5,3))
 
-
+    print(matrixW_Heff)
     # color 
     linecolor = 'black'
 

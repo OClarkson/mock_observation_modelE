@@ -33,13 +33,13 @@ def read_nc_cnt( infile ):
     p_grid = p_calc[::T_DIM]
     t_grid = t_calc[:T_DIM]
 
-    print 'p_grid', p_grid
+    print(('p_grid', p_grid))
     # unit conversion
     wn_grid = wn_grid * 1e-2  # m^-1 => cm^-1 
     p_calc  = p_calc  * 1e-2 # Pa => mbar
     xs_grid = xs_grid * ( 1e2 )**5 * ( 1e-3 )**2 # m5 kg-2 => cm5 / g^-2
 #    xs_grid = xs_grid * MU_H2O / cgs.NA   # cm2 g-1 =>   cm2 / molecule
-    print 'xs_grid2', xs_grid[0]
+    print(('xs_grid2', xs_grid[0]))
 
     return wn_grid, p_grid, t_grid, xs_grid
 
@@ -47,7 +47,7 @@ def read_nc_cnt( infile ):
 #--------------------------------------------------------------------
 def interpolate_logXSofWNTP( infile, WN_lookuptable, TT_lookuptable, PP_lookuptable ) :
 
-    print 'adding cross section of H2O continuum...'
+    print('adding cross section of H2O continuum...')
 
     wn_grid_cnt, p_grid_cnt, t_grid_cnt, xs_grid_cnt = read_nc_cnt( infile )
 
@@ -69,7 +69,7 @@ def interpolate_logXSofWNTP( infile, WN_lookuptable, TT_lookuptable, PP_lookupta
     flat_logXS_cnt  = interpolate.griddata( coords, values, flat_points, method='nearest' ) 
     logXSofWNTlogP  = flat_logXS_cnt.reshape( [ len( WN_lookuptable ), len( TT_lookuptable ), len( PP_lookuptable ) ] )
 
-    print 'finish'
+    print('finish')
 
     return logXSofWNTlogP
 

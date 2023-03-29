@@ -20,7 +20,7 @@ def extract_param( file, list_param, type='txt' ):
     for param in list_param :
 
         # default
-        if param in param_default.keys():
+        if param in list(param_default.keys()):
             value = param_default[param]
         else:
             value = 0.
@@ -33,7 +33,7 @@ def extract_param( file, list_param, type='txt' ):
                     start = line.find( param.lower() ) + len( param ) + 1
                     end   = min( line.find(' '), line.find('\n'), line.find('!'))
                     if type=='float' :
-                        print 'line[start:end]', line[start:end]
+                        print('line[start:end]', line[start:end])
                         str = line[start:end].replace( 'd', 'e' )
                         value = float( str )
                     else :
@@ -53,7 +53,7 @@ def extract_block( file, start, end ):
     ld.close()
 
     # search
-    for ll in xrange( len( lines ) ):
+    for ll in range( len( lines ) ):
         if lines[ll].find( start ) >= 0 :
             l_start = ll
             while lines[ll].find( end ) < 0 :

@@ -32,7 +32,7 @@ def get_nXS_molabs( layer_z, grid_wn, dict_griddata_logXSofWNTP, dict_NonCondens
 
     matrixWZ_nXS = np.zeros( [ len( grid_wn ), len( layer_z ) ] )
 
-    list_mol = dict_griddata_logXSofWNTP.keys()
+    list_mol = list(dict_griddata_logXSofWNTP.keys())
     list_mol.remove('coords')
 
     #---------- map function -----------
@@ -47,7 +47,7 @@ def get_nXS_molabs( layer_z, grid_wn, dict_griddata_logXSofWNTP, dict_NonCondens
 
     for molename in list_mol :
 
-        matrixWZ_XS = map( expand_wn, np.arange( len( grid_wn ) ) )
+        matrixWZ_XS = list(map( expand_wn, np.arange( len( grid_wn ) ) ))
         matrixWZ_XS = np.array( matrixWZ_XS )
 
         if molename == 'H2O-H2O' :
@@ -98,9 +98,9 @@ def get_nXS_Rayleigh( layer_z, grid_wn, dict_NonCondensableGas, dict_atmprof_fun
     matrixZ_alpha = np.zeros_like( layer_z )
 
     if l_O3 :
-        list_mol = dict_NonCondensableGas.keys() + ['H2O', 'O3']
+        list_mol = list(dict_NonCondensableGas.keys()) + ['H2O', 'O3']
     else :
-        list_mol = dict_NonCondensableGas.keys() + ['H2O']
+        list_mol = list(dict_NonCondensableGas.keys()) + ['H2O']
 
     for molename in list_mol :
 

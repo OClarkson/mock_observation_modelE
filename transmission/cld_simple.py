@@ -20,7 +20,7 @@ def profile_nXSofZ_cld(layer_z, grid_wn, tuple_func_atmprof, Qext, alpha, fac):
     # read water content profile
     #------------------------------------------------
     if (CLD_GCM):
-        print 'reading gcm output...'
+        print('reading gcm output...')
         cld_profile = read_wcfile_gcm(FILE_HEIGHT, FILE_CLD, tuple_func_atmprof, ilat=23)
     else:
         cld_profile = read_wcfile(infile_cld)
@@ -41,17 +41,17 @@ def profile_nXSofZ_cld(layer_z, grid_wn, tuple_func_atmprof, Qext, alpha, fac):
     func_kext = util_interp.interp_1d(cld_profile['z'], cldlayer_nXSext, logx=False, logy=False, bounds_error=False, fill_value=0.0)
 #    func_ksca = util_interp.interp_1d(cld_profile['z'], nXSsca_cldlayers, order=1, logx=False, logy=False, fill_value=0.0)
 
-    print "----------cloud data---------"
-    for ii in xrange(len(cld_profile['z'])):
-        print cld_profile['z'][ii], cldlayer_nXSext[ii]
+    print("----------cloud data---------")
+    for ii in range(len(cld_profile['z'])):
+        print((cld_profile['z'][ii], cldlayer_nXSext[ii]))
 
-    print ""
+    print("")
     layer_nXSext = func_kext(layer_z)
 
-    print ""
-    print "----------atmospheric data---------"
-    for ii in xrange(len(layer_z)):
-        print layer_z[ii], layer_nXSext[ii]
+    print("")
+    print("----------atmospheric data---------")
+    for ii in range(len(layer_z)):
+        print((layer_z[ii], layer_nXSext[ii]))
 
 
 #    nXSsca_layers = func_ksca(grid_z)
@@ -79,15 +79,15 @@ def read_wcfile_gcm(infile_height, infile_cld, tuple_func_atmprof, ilat=0):
     cld_profile['z']     = np.loadtxt(infile_height).T[ilat]*1.0e2
     cld_profile['LWC']   = np.loadtxt(infile_cld).T[ilat]
 
-    print cld_profile['z']
-    print cld_profile['LWC']
+    print((cld_profile['z']))
+    print((cld_profile['LWC']))
 
     #------------------------------------------------
     # check the order of altitude
     #------------------------------------------------
     reverse = 0
     z_old = cld_profile['z'][0]
-    for zi in xrange(1,len(cld_profile['z'])):
+    for zi in range(1,len(cld_profile['z'])):
         if (cld_profile['z'][zi] < z_old):
             reverse = reverse + 1
     if (reverse == len(cld_profile['z'])):
@@ -101,8 +101,8 @@ def read_wcfile_gcm(infile_height, infile_cld, tuple_func_atmprof, ilat=0):
     cldlayer_P   = func_PofZ(cld_profile['z'])
     cldlayer_T   = func_TofZ(cld_profile['z'])
     cldlayer_MU  = func_MUofZ(cld_profile['z'])
-    print "cldlayer_P", cldlayer_P
-    print cldlayer_P[0]/(cgs.RR*cldlayer_T[0])*constants.N_A
+    print(("cldlayer_P", cldlayer_P))
+    print((cldlayer_P[0]/(cgs.RR*cldlayer_T[0])*constants.N_A))
     cldlayer_rho = cldlayer_MU*cldlayer_P/(cgs.RR*cldlayer_T)
 
     cld_profile['LWC'] = cld_profile['LWC']*cldlayer_rho

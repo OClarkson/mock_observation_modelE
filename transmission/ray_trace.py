@@ -15,19 +15,19 @@ def RK4( list_dXds, array_X, ds ):
     array_k = np.zeros([ 4, n_var ])
 
     # k0
-    for ii in xrange( n_var ):
+    for ii in range( n_var ):
         array_k[0,ii] = list_dXds[ii]( array_X )
     # k1
     array_X_1 = array_X + 0.5*array_k[0]*ds
-    for ii in xrange( n_var ):
+    for ii in range( n_var ):
         array_k[1,ii] = list_dXds[ii]( array_X_1 )
     # k2
     array_X_2 = array_X + 0.5*array_k[1]*ds
-    for ii in xrange( n_var ):
+    for ii in range( n_var ):
         array_k[2,ii] = list_dXds[ii]( array_X_2 )
     # k3
     array_X_3 = array_X + array_k[2]*ds
-    for ii in xrange( n_var ):
+    for ii in range( n_var ):
         array_k[3,ii] = list_dXds[ii]( array_X_3 )
 
     # step forward
@@ -84,7 +84,7 @@ def refraction( layer_b, r_planet, dict_atmprof_funcZ, d_l ):
     #------------------------------------------------
     listB_func_lofz = []
 
-    for ii in xrange( b_num - 1 ) :
+    for ii in range( b_num - 1 ) :
 
         #------------------------------------------------
         # initialization
@@ -108,7 +108,7 @@ def refraction( layer_b, r_planet, dict_atmprof_funcZ, d_l ):
         list_l = []
         list_z = []
 
-        for loop in xrange( LOOPMAX ) :
+        for loop in range( LOOPMAX ) :
 
             nn   = dict_atmprof_funcZ['refractivity']( array_X[1] )
             dndr = dict_atmprof_funcZ['dndr']( array_X[1] )

@@ -11,7 +11,7 @@ def read_nc_socrates( infile, mode=False, param_in=False ):
     To read netCDF file and extract albedo / outgoing flux
     """
 
-    print "infile", infile
+    print("infile", infile)
 
     # read file
     ncfile_r = netCDF4.Dataset( infile, 'r', format='NETCDF3_64BIT')        
@@ -31,14 +31,14 @@ def read_nc_socrates( infile, mode=False, param_in=False ):
         errors.exit_msg( "Invalid mode ( SW of LW )" )
 
     # count number of bands
-    for ii in xrange( 1, 1000 )  :
+    for ii in range( 1, 1000 )  :
         if param+str(ii) not in ncfile_r.variables :
             band_num = ii
             break
 
     #--------------------------------
     lat2 = np.zeros_like(lat)
-    for ilat in xrange( nlat ):
+    for ilat in range( nlat ):
         lat2[ilat] = - 90.0 + ( 180.0 / nlat ) * ( ilat + 0.5 )
     lat = lat2
     #--------------------------------
@@ -49,7 +49,7 @@ def read_nc_socrates( infile, mode=False, param_in=False ):
 
     array_data   = np.zeros( [ len( lat_flatten ), band_num - 1 ] )
 
-    for ii in xrange( 1, band_num ):
+    for ii in range( 1, band_num ):
 
         array_data[:,ii-1] = ncfile_r.variables[param+str(ii)][:].flatten()
 
@@ -73,7 +73,7 @@ def read_nc_giss( infile, mode=False, param_in=False ):
     To read netCDF file and extract albedo / outgoing flux
     """
 
-    print "infile", infile
+    print("infile", infile)
 
     # read file
     ncfile_r = netCDF4.Dataset( infile, 'r', format='NETCDF3_64BIT')
@@ -94,7 +94,7 @@ def read_nc_giss( infile, mode=False, param_in=False ):
 
     #--------------------------------
     lat2 = np.zeros_like(lat)
-    for ilat in xrange( nlat ):
+    for ilat in range( nlat ):
         lat2[ilat] = - 90.0 + ( 180.0 / nlat ) * ( ilat + 0.5 )
     lat = lat2
     #--------------------------------

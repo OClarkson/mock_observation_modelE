@@ -2,7 +2,7 @@ import numpy as np
 import datetime
 import os
 import sys
-import commands
+import subprocess
 from copy import deepcopy
 
 from setup import *
@@ -28,17 +28,17 @@ if __name__ == "__main__":
     # initialization 
     #------------------------------------------------
 
-    print ''
+    print('')
     now = datetime.datetime.now()
-    print now.strftime("%Y-%m-%d %H:%M:%S")
+    print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
     if not l_Debug :
 
         # Create directory
         out_dir = s_outFile_Dir + s_outFile_Tag + "/"
         if os.path.exists( out_dir ):
-            print out_dir+" already exists. Overwrite? [y/n] ...", 
-            answer = raw_input()
+            print(out_dir+" already exists. Overwrite? [y/n] ...", end=' ') 
+            answer = input()
 
             if answer=='n'  :
                 sys.exit()
@@ -47,7 +47,7 @@ if __name__ == "__main__":
                 util_errors.exit_msg('Unknown answer')
         else :
             os.mkdir( out_dir )
-            print "Created directory:", out_dir
+            print("Created directory:", out_dir)
 
         # Save THIS file and the setup file for reproducibility
         # ( This idea comes from Jacob )
@@ -55,7 +55,7 @@ if __name__ == "__main__":
         setupfile = "setup.py"
         os.system( "cp " + thisfile  + ' ' + out_dir + thisfile  )
         os.system( "cp " + setupfile + ' ' + out_dir + setupfile )
-        print "Saved :", thisfile, " &", setupfile
+        print("Saved :", thisfile, " &", setupfile)
 
         # Save start time
         filename_log = out_dir + "time.log"
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     oblqty, phase_eq, phase0, inc = geometry.init_geometry( oblqty_deg, f_PhaseAngle_Equinox_deg, f_PhaseAngle_Initial_deg, f_InclinationAngle_deg )
     omega_spin, omega_orbit       = geometry.init_omega( p_spin_sec * sec2hr, p_orbit_sec * sec2hr )
 
-    datafile_example = commands.getoutput( "find " + s_aijFile_Dir[:-1] + " -name *" + s_aijFile_Tag ).split("\n")[0]
+    datafile_example = subprocess.getoutput( "find " + s_aijFile_Dir[:-1] + " -name *" + s_aijFile_Tag ).split("\n")[0]
     nlat, nlon, array_lat, array_lon, array_data_dummy = read_nc( datafile_example, mode="sw" )
     array_area = geometry.init_area( nlat, nlon, array_lat, array_lon )
     lon_offset = geometry.get_lon_offset( array_lat, array_lon, f_SubStellarLongitude_Initial_deg, oblqty, phase_eq, phase0 )
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     #-----------------------------------------------
     # Computing time variation...
     #-----------------------------------------------
-    print 'Computing time variation...'
+    print('Computing time variation...')
     #-----------------------------------------------
     
     data_integrated_sw = []
@@ -123,19 +123,19 @@ if __name__ == "__main__":
                 if l_ShortWave_LightCurve or l_ShortWave_Spectrum :
                     if month1_old == -1 :
                         nlat, nlon, array_lat, array_lon, array_data_sw_1 = read_nc( s_aijFile_Dir+label_month[month1]+s_aijFile_Tag, mode='sw' )
-                        print 'Reading ', label_month[month1], 'data for SW'
+                        print('Reading ', label_month[month1], 'data for SW')
                     else :
                         array_data_sw_1 = deepcopy( array_data_sw_2 )
-                    print 'Reading ', label_month[month2], 'data for SW'
+                    print('Reading ', label_month[month2], 'data for SW')
                     nlat, nlon, array_lat, array_lon, array_data_sw_2 = read_nc( s_aijFile_Dir+label_month[month2]+s_aijFile_Tag, mode='sw' )
 
                 if l_LongWave_LightCurve or l_LongWave_Spectrum :
                     if month1_old == -1 :
                         nlat, nlon, array_lat, array_lon, array_data_lw_1 = read_nc( s_aijFile_Dir+label_month[month1]+s_aijFile_Tag, mode='lw' )
-                        print 'Reading ', label_month[month1], 'data for LW'
+                        print('Reading ', label_month[month1], 'data for LW')
                     else :
                         array_data_lw_1 = deepcopy( array_data_lw_2 )
-                    print 'Reading ', label_month[month2], 'data for LW'
+                    print('Reading ', label_month[month2], 'data for LW')
                     nlat, nlon, array_lat, array_lon, array_data_lw_2 = read_nc( s_aijFile_Dir+label_month[month2]+s_aijFile_Tag, mode='lw' )
 
                 month1_old = month1
@@ -215,8 +215,8 @@ if __name__ == "__main__":
     #------------------------------------------------
     # Save end time
     now = datetime.datetime.now()
-    print now.strftime("%Y-%m-%d %H:%M:%S")
-    print ''
+    print(now.strftime("%Y-%m-%d %H:%M:%S"))
+    print('')
 
     if not l_Debug :
 

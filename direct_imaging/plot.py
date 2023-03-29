@@ -30,15 +30,15 @@ def get_labels( band, digit=0 ) :
     band_flat  = band.flatten()
 
     if digit == 0 :
-        band_str_flat = map( str, map( int, map( round, band_flat ) ) )
+        band_str_flat = list(map( str, list(map( int, list(map( round, band_flat )) )) ))
     else :
-        band_str_flat = map( str, map( lambda x: round(x, digit), band_flat ) )
+        band_str_flat = list(map( str, [round(x, digit) for x in band_flat] ))
 
     band_str_flat = np.array( band_str_flat )
     band_str      = band_str_flat.reshape( band_shape )
 
     labels = []
-    for jj in xrange( len( band ) ):
+    for jj in range( len( band ) ):
         labels.append( band_str[jj][0] + '-' + band_str[jj][1] + r' $\mu $m' )
 
     return labels
@@ -49,7 +49,7 @@ def get_labels( band, digit=0 ) :
 def plot_sp( data_time, data_integrated, outfile_head, rfile, spfile=False, mode=False ):
 
     #-----------------------------------------------
-    print 'Plotting ' + str(mode.upper()) +' average spectra' 
+    print('Plotting ' + str(mode.upper()) +' average spectra') 
     #-----------------------------------------------
 
     data_sp     = np.nanmean( data_integrated, axis=0 )
@@ -77,7 +77,7 @@ def plot_sp( data_time, data_integrated, outfile_head, rfile, spfile=False, mode
 def plot_lc( data_time, data_integrated, outfile_head, rfile, spfile=False, mode=False, full_phase=True ):
 
     #-----------------------------------------------
-    print 'Plotting ' + str(mode.upper()) +' lightcurves' 
+    print('Plotting ' + str(mode.upper()) +' lightcurves') 
     #-----------------------------------------------
 
     band_num    = len( data_integrated.T )
@@ -101,7 +101,7 @@ def plot_lc( data_time, data_integrated, outfile_head, rfile, spfile=False, mode
         ax.set_xlabel( 'orbital phase [rad]' )
         ax.set_xlim([-np.pi, np.pi])
 
-    for jj in xrange( len( data_integrated.T ) ):
+    for jj in range( len( data_integrated.T ) ):
         if mode=='SW' or mode=='sw' :
             if band_num > 1 :
                 ax.plot( data_time, data_integrated.T[jj], label=labels[jj], c=colors[jj] )

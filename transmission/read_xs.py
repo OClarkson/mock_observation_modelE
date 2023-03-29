@@ -23,7 +23,7 @@ def read_lookuptable( xsfile, grid_wn, grid_P, grid_T ):
 
     if os.path.exists( xsfile ) : # check if the file exists
 
-        print "Reading " + xsfile + "..."
+        print(("Reading " + xsfile + "..."))
 
         data = np.load( xsfile )
 
@@ -49,7 +49,7 @@ def read_lookuptable( xsfile, grid_wn, grid_P, grid_T ):
 
     else :
 
-        print "Reading " + xsfile + "...NOT FOUND. NO OPACITY ASSUMED. "
+        print(("Reading " + xsfile + "...NOT FOUND. NO OPACITY ASSUMED. "))
         grid_XS = np.zeros([ len( grid_wn ), len( grid_T ), len( grid_P ) ]) + 1.e-48
 
     return grid_XS
@@ -91,7 +91,7 @@ def griddata_line( list_mol, XSFILE_TAG, grid_wn, grid_T, grid_P, cnt_h2o_on=Fal
 def griddata_add_UV( molename, filename, grid_wn, grid_T, grid_P, dict_griddata_logXSofWNTP ):
 
     # read UV continuum absorption data
-    print "Reading " + filename + " for " + molename + "...   "
+    print(("Reading " + filename + " for " + molename + "...   "))
     UVdata = np.loadtxt( filename, dtype='string' )
     table_XS = UVdata[1:,1:].astype( np.float )
     table_T  = UVdata[0,1:].astype( np.float )

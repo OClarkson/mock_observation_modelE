@@ -46,8 +46,8 @@ def raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXS
     if len( dict_griddata_logXSofWNTP ) > 0 : 
         max_pres_probed = dict_atmprof_funcZ['plm']( matrixB_z_min[b_bottom_indx] )
         max_pres_in_xstbl = np.exp( np.max( dict_griddata_logXSofWNTP['coords'][:,1] ) )
-        print 'max_pres_probed', max_pres_probed/cgs.mbar_to_barye
-        print 'max_pres_in_xstbl', max_pres_in_xstbl/cgs.mbar_to_barye
+        print(('max_pres_probed', max_pres_probed/cgs.mbar_to_barye))
+        print(('max_pres_in_xstbl', max_pres_in_xstbl/cgs.mbar_to_barye))
         if ( max_pres_probed > max_pres_in_xstbl ) :
             util_errors.warning_longmsg( [ 'Maximum atmospheric pressure probed is larger than maximum pressure in lookuptable.' , 
                                            'Pressure higher than ' + str( max_pres_in_xstbl/cgs.mbar_to_barye ) + ' mbar is ignored.' ] )
@@ -67,7 +67,7 @@ def raytrace_opacity( grid_wn, theta, d_theta, dict_atmprof, dict_griddata_logXS
     # delta l
     matrixBZ_dl      = np.zeros( [ b_num, z_num ] )
 
-    for ii in xrange( b_bottom_indx, b_num - 1 ):
+    for ii in range( b_bottom_indx, b_num - 1 ):
 
         marker_z = layer_z[np.where( layer_z > matrixB_z_min[ii] )]
         marker_l = listB_func_lofz[ii]( marker_z )

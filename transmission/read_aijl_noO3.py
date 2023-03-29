@@ -12,7 +12,7 @@ import sys
 #=============================================================================
 def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
 
-    print "Reading " + infile + " for atmospheric profile..."
+    print(("Reading " + infile + " for atmospheric profile..."))
 
     # molecular weight of dry air
     mu_air_dry = 0.
@@ -79,7 +79,7 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
     list_theta        = []
 
     # east limb or west limb
-    for i_ew in xrange(2):
+    for i_ew in range(2):
 
         # at different latitude
         for i_lat in grid_ew[i_ew] :
@@ -143,7 +143,7 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
             # differential refractivity
             dndr_layers     = np.zeros_like( refrac_layers )
             dndr_layers[0]  = ( refrac_layers[1] - refrac_layers[0] ) / ( dict_atmprof['z'][1] - dict_atmprof['z'][0] )
-            for zi in xrange( 1, len( refrac_layers )-1 ):
+            for zi in range( 1, len( refrac_layers )-1 ):
                 dndr_layers[zi] = ( refrac_layers[zi+1] - refrac_layers[zi-1] ) / ( dict_atmprof['z'][zi+1] - dict_atmprof['z'][zi-1] )
             dndr_layers[-1] = ( refrac_layers[-1] - refrac_layers[-2] ) / ( dict_atmprof['z'][-1] - dict_atmprof['z'][-2] )
             dict_atmprof['dndr'] = -1.*deepcopy( dndr_layers ) # flip the sign
@@ -156,7 +156,7 @@ def extract_limbprof( infile, dict_NonCondensableGas, z_top, g_planet ) :
             #     print theta/np.pi*180., dict_atmprof['z'][zi]*1e-5, dict_atmprof['temp'][zi]
             # print ''
 
-    print "...Finish."
+    print("...Finish.")
 
 
     return list_theta, list_dict_atmprof

@@ -9,7 +9,7 @@ import setup_plot
 def plot_sp( outfile_head, dict_geom, grid_wl, matrixW_Heff, matrixW_dFppm ):
 
     #-----------------------------------------------
-    print 'Plotting transmission spectrum...'
+    print('Plotting transmission spectrum...')
     #-----------------------------------------------
     fig, ax, linecolor, title, y_unit, y_range = setup_plot.sp( grid_wl, matrixW_Heff, matrixW_dFppm )
 

@@ -72,10 +72,10 @@ def get_lon_offset( array_lat, array_lon, substellar_lon_0, oblqty, phase_eq, ph
     lon_substellar = np.mean( substellar_lon_candidate )
     lon_substellar = lon_substellar / deg2rad
 
-    print 'lon_substellar', lon_substellar
+    print('lon_substellar', lon_substellar)
     lon_offset = lon_substellar - substellar_lon_0
 
-    print 'lon_offset', lon_offset
+    print('lon_offset', lon_offset)
     return lon_offset
 
 

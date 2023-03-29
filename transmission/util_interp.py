@@ -1,4 +1,4 @@
-import os, itertools, cPickle, hashlib
+import os, itertools, pickle, hashlib
 import scipy.interpolate
 import numpy as np
 
@@ -49,7 +49,7 @@ def interp_rect_spline(xx,yy,Z,logx=True, logy=True, logz=True,
     xx = np.log(xx) if logx else xx
     yy = np.log(yy) if logy else yy
     Z = np.log(Z) if logz else Z
-    xx,yy,Z = [np.asarray(aa) for aa in xx,yy,Z]
+    xx,yy,Z = [np.asarray(aa) for aa in (xx,yy,Z)]
     internal = scipy.interpolate.RectBivariateSpline(xx, yy, Z, 
                                                      kx=kx, ky=ky, **kw)
     def interpolator(uu,vv):
@@ -88,7 +88,7 @@ def interp_rbf(X,Y,Z,logx=True, logy=True, logz=True, **kw):
     X = np.log(X) if logx else X
     Y = np.log(Y) if logy else Y
     Z = np.log(Z) if logz else Z
-    X,Y,Z = [np.asarray(aa) for aa in X,Y,Z]
+    X,Y,Z = [np.asarray(aa) for aa in (X,Y,Z)]
     internal = scipy.interpolate.Rbf(X.ravel(), Y.ravel(), Z.ravel(), **kw)
     def interpolator(xx, yy):
         xx = np.log(xx) if logx else xx
@@ -100,7 +100,7 @@ def interp_rbf(X,Y,Z,logx=True, logy=True, logz=True, **kw):
 
 def interp_griddata(X,Y,Z,logx=True, logy=True, logz=True, **kw):
     """Unstructured interplation using nearest neighbors for now."""
-    X,Y,Z = [np.asarray(aa) for aa in X,Y,Z]
+    X,Y,Z = [np.asarray(aa) for aa in (X,Y,Z)]
     X = np.log(X) if logx else X
     Y = np.log(Y) if logy else Y
     Z = np.log(Z) if logz else Z
@@ -121,7 +121,7 @@ def interp_griddata(X,Y,Z,logx=True, logy=True, logz=True, **kw):
 
 def interp_griddata_3Dgrid(coords, values, points, logx=True, logy=True, logz=True, logw=True, **kw):
     """Unstructured interplation using nearest neighbors for now."""
-    X,Y,Z,W = [np.asarray(aa) for aa in X,Y,Z,W]
+    X,Y,Z,W = [np.asarray(aa) for aa in (X,Y,Z,W)]
     X = np.log(X) if logx else X
     Y = np.log(Y) if logy else Y
     Z = np.log(Z) if logz else Z
@@ -147,7 +147,7 @@ def interp_spline(X,Y,Z,logx=True, logy=True, logz=True, **kw):
     X = np.log(X) if logx else X
     Y = np.log(Y) if logy else Y
     Z = np.log(Z) if logz else Z
-    X, Y, Z = [np.asarray(aa) for aa in X,Y,Z]
+    X, Y, Z = [np.asarray(aa) for aa in (X,Y,Z)]
     internal = scipy.interpolate.SmoothBivariateSpline(
         X.ravel(), Y.ravel(), Z.ravel(), **kw)
     def interpolator(xx,yy):
